@@ -25,6 +25,7 @@
 		<bodyPartGroups>
 			<li>Torso</li>
 		</bodyPartGroups>
+		<Default>True</Default>
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
@@ -39,6 +40,7 @@
 		<bodyPartGroups>
 			<li>Torso</li>
 		</bodyPartGroups>
+		<Default>True</Default>
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
@@ -82,6 +84,7 @@
 		<bodyPartGroups>
 			<li>Torso</li>
 		</bodyPartGroups>
+		<Default>True</Default>
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
@@ -97,6 +100,7 @@
 			<li>UpperHead</li>
 			<li>FullHead</li>
 		</bodyPartGroups>
+		<Default>True</Default>
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
@@ -213,6 +217,7 @@
 		<bodyPartGroups>
 			<li>Waist</li>
 		</bodyPartGroups>
+		<Default>True</Default>
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 	
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
@@ -242,6 +247,7 @@
 		<bodyPartGroups>
 			<li>Legs</li>
 		</bodyPartGroups>
+		<Default>True</Default>
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 	
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>

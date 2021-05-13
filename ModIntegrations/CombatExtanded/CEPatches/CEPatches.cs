@@ -18,10 +18,11 @@ namespace CEPatches
     [StaticConstructorOnStartup]
     static class RPG_CEPatch
     {
+        public static readonly Texture2D texBulk = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Bulk_Icon", true);
         static RPG_CEPatch()
         {
             if (ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageId == "ceteam.combatextended") == null
-                || ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageId == "sandy.rpgstyleinventory") == null)
+                || ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageId == "sandy.rpgstyleinventory.avilmask.revamped") == null)
                 return;
             //
             //shenanigans to hide HarmonyLib from StartupConstructor
@@ -31,7 +32,6 @@ namespace CEPatches
 
         static class RPG_CEPatches
         {
-            public static readonly Texture2D texBulk = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Bulk_Icon", true);
             static MethodInfo LDrawStats1;
             static MethodInfo LDrawStats;
             static FieldInfo LstatIconSize;
@@ -311,12 +311,14 @@ namespace CEPatches
                     //
                     string text = AgregateApparelBreakDown(pawn.RaceProps.body.AllParts, list, stat, statValue, unit);
                     //
-                    Rect rect1 = new Rect(left, top, statIconSize, statIconSize);
-                    GUI.DrawTexture(rect1, image);
-                    TooltipHandler.TipRegion(rect1, label);
-                    Rect rect2 = new Rect(left + stdThingIconSize + 4f, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize - 4f, statIconSize);
-                    Widgets.Label(rect2, FormatArmorValue(num, unit));
-                    TooltipHandler.TipRegion(rect2, text);
+                    //Rect rect1 = new Rect(left, top, statIconSize, statIconSize);
+                    //GUI.DrawTexture(rect1, image);
+                    //TooltipHandler.TipRegion(rect1, label);
+                    //Rect rect2 = new Rect(left + stdThingIconSize + 4f, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize - 4f, statIconSize);
+                    //Widgets.Label(rect2, FormatArmorValue(num, unit));
+                    //TooltipHandler.TipRegion(rect2, text);
+                    Rect rect = new Rect(left, top, width, statIconSize);
+                    Sandy_Utility.LabelWithIcon(rect, image, statIconSize, statIconSize, label, FormatArmorValue(num, unit), text);
                     top += stdThingRowHeight;
                 }
             }
@@ -564,14 +566,13 @@ namespace CEPatches
                 TooltipHandler.TipRegion(rect1, "CE_Weight".Translate());
                 float val1 = compInventory.currentWeight;
                 float val2 = compInventory.capacityWeight;
-                string str = val1.ToString("0.#");//MassUtility.GearAndInventoryMass(pawn);
-                string str2 = CE_StatDefOf.CarryWeight.ValueToString(val2, CE_StatDefOf.CarryWeight.toStringNumberSense, true); //MassUtility.Capacity(pawn, null);
+                string str = val1.ToString("0.#");
+                string str2 = CE_StatDefOf.CarryWeight.ValueToString(val2, CE_StatDefOf.CarryWeight.toStringNumberSense, true);
                 Rect rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
                 Utility_Loadouts.DrawBar(rect2, val1, val2, "", pawn.GetWeightTip());
                 rect2.xMin += 4f;
                 rect2.yMin += 2f;
                 Widgets.Label(rect2, str + '/' + str2);
-                //TooltipHandler.TipRegion(rect2, pawn.GetWeightTip());
                 top += stdThingRowHeight;
                 //bulk
                 rect1 = new Rect(left, top, statIconSize, statIconSize);
@@ -579,14 +580,13 @@ namespace CEPatches
                 TooltipHandler.TipRegion(rect1, "CE_Bulk".Translate());
                 val1 = compInventory.currentBulk;
                 val2 = compInventory.capacityBulk;
-                str = CE_StatDefOf.CarryBulk.ValueToString(val1, CE_StatDefOf.CarryBulk.toStringNumberSense, true);//MassUtility.GearAndInventoryMass(pawn);
-                str2 = CE_StatDefOf.CarryBulk.ValueToString(val2, CE_StatDefOf.CarryBulk.toStringNumberSense, true); //MassUtility.Capacity(pawn, null);
+                str = CE_StatDefOf.CarryBulk.ValueToString(val1, CE_StatDefOf.CarryBulk.toStringNumberSense, true);
+                str2 = CE_StatDefOf.CarryBulk.ValueToString(val2, CE_StatDefOf.CarryBulk.toStringNumberSense, true);
                 rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
                 Utility_Loadouts.DrawBar(rect2, val1, val2, "", pawn.GetBulkTip());
                 rect2.xMin += 4f;
                 rect2.yMin += 2f;
                 Widgets.Label(rect2, str + '/' + str2);
-                //TooltipHandler.TipRegion(rect2, pawn.GetBulkTip());
                 top += stdThingRowHeight;
             }
 

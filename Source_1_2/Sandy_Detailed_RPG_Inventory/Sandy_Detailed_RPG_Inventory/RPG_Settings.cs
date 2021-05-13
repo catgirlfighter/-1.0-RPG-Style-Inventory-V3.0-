@@ -25,6 +25,8 @@ namespace Sandy_Detailed_RPG_Inventory
         public static Color colNormal = Color.white;
         public static Color colPoor = Color.gray;
         public static Color colAwful = Color.gray;
+        public static bool displayBG = true;
+        public static bool displayStaticSlotBG = true;
 
         public override void ExposeData()
         {
@@ -42,6 +44,8 @@ namespace Sandy_Detailed_RPG_Inventory
             Scribe_Values.Look(ref colNormal, "colNormal", Color.white);
             Scribe_Values.Look(ref colPoor, "colPoor", Color.gray);
             Scribe_Values.Look(ref colAwful, "colAwful", Color.gray);
+            Scribe_Values.Look(ref displayBG, "displayBG", true);
+            Scribe_Values.Look(ref displayStaticSlotBG, "displayStaticSlotBG", true);
             //
             if (simplifiedView == null)
                 return;
@@ -113,6 +117,12 @@ namespace Sandy_Detailed_RPG_Inventory
             if (Sandy_Utility.CustomCheckboxLabeled(listingStandard, "RPG_Display_All_Slots_Label".Translate(), ref Sandy_RPG_Settings.displayAllSlots, "RPG_Display_All_Slots_Note".Translate()))
             {
                 DoFit(Sandy_RPG_Settings.displayAllSlots, true);
+            }
+            if (!Sandy_RPG_Settings.displayAllSlots)
+            {
+                listingStandard.CheckboxLabeled("RPG_Display_Background_Label".Translate(), ref Sandy_RPG_Settings.displayBG, "RPG_Display_Background_Note".Translate());
+                if (!Sandy_RPG_Settings.displayBG)
+                    listingStandard.CheckboxLabeled("RPG_Display_Static_Slot_Background_Label".Translate(), ref Sandy_RPG_Settings.displayStaticSlotBG, "RPG_Display_Static_Slot_Background_Note".Translate());
             }
             listingStandard.CheckboxLabeled("RPG_Dispaly_Temp_On_The_Same_Line_Label".Translate(), ref Sandy_RPG_Settings.displayTempOnTheSameLine, "RPG_Dispaly_Temp_On_The_Same_Line_Note".Translate());
             listingStandard.CheckboxLabeled("RPG_Display_Apparel_Healthbar_Label".Translate(), ref Sandy_RPG_Settings.apparelHealthbar, "RPG_Display_Apparel_Healthbar_Note".Translate());
@@ -260,6 +270,18 @@ namespace Sandy_Detailed_RPG_Inventory
             bool result = Widgets.ButtonText(rect.RightHalf(), buttonLabel, true, true, true);
             listing.Gap(listing.verticalSpacing);
             return result;
+        }
+
+        public static void LabelWithIcon(Rect rect, Texture icon, float iconWidth, float iconHeight, string iconlabel, string label, string tip = null)
+        {
+            if (Mouse.IsOver(rect)) Widgets.DrawHighlight(rect);
+            Rect locrect = new Rect(rect.xMin, rect.yMin, iconWidth, iconHeight);
+            GUI.DrawTexture(locrect, icon);
+            if (tip != null) TooltipHandler.TipRegion(locrect, iconlabel);
+            locrect = new Rect(locrect.xMax + 4f, rect.yMin + (rect.height - iconHeight) / 2f, rect.xMax - locrect.xMax - 4f, iconHeight);
+            Widgets.Label(locrect, label);
+            if (tip == null) TooltipHandler.TipRegion(rect, iconlabel);
+            else TooltipHandler.TipRegion(locrect, tip);
         }
     }
 }

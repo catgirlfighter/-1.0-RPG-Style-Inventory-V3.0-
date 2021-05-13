@@ -29,4 +29,8 @@
   <RPG_Colors_Button_Label>Change</RPG_Colors_Button_Label>
   <RPG_Color_Codes_Label>Use color coding</RPG_Color_Codes_Label>
   <RPG_Color_Codes_Note></RPG_Color_Codes_Note>
+  <RPG_Display_Background_Label>Display slot backgrounds</RPG_Display_Background_Label>
+  <RPG_Display_Background_Note></RPG_Display_Background_Note>
+  <RPG_Display_Static_Slot_Background_Label>Display default solt backgrounds</RPG_Display_Static_Slot_Background_Label>
+  <RPG_Display_Static_Slot_Background_Note></RPG_Display_Static_Slot_Background_Note>
 </LanguageData>

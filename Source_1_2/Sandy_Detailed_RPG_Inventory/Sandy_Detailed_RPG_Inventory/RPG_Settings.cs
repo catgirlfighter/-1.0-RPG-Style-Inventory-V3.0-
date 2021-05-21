@@ -62,17 +62,19 @@ namespace Sandy_Detailed_RPG_Inventory
 
         public static void FillSimplifiedViewDict()
         {
-            if (simplifiedView != null || instance == null)
+            if (simplifiedView != null || instance?.Mod?.Content == null)
+                return;
+            //
+            IEnumerable<ThingDef> l = DefDatabase<ThingDef>.AllDefsListForReading.Where(x => x.thingClass == typeof(Pawn) || x.thingClass != null && x.thingClass.IsSubclassOf(typeof(Pawn)));
+            if (l.EnumerableNullOrEmpty())
                 return;
             //
             simplifiedView = new Dictionary<ThingDef, bool>();
-            IEnumerable<ThingDef> l = DefDatabase<ThingDef>.AllDefsListForReading.Where(x => x.thingClass == typeof(Pawn) || x.thingClass.IsSubclassOf(typeof(Pawn)));
             foreach (var i in l)
             {
-                Sandy_RPG_Settings.simplifiedView[i] = false;
+                simplifiedView[i] = false;
             }
-            var inst = instance;
-            LoadedModManager.ReadModSettings<Sandy_RPG_Settings>(inst.Mod.Content.FolderName, inst.Mod.GetType().Name);
+            LoadedModManager.ReadModSettings<Sandy_RPG_Settings>(instance.Mod.Content.FolderName, instance.Mod.GetType().Name);
         }
     }
 

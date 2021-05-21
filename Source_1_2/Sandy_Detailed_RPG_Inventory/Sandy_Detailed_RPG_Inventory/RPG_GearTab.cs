@@ -46,7 +46,7 @@ namespace Sandy_Detailed_RPG_Inventory
             tutorTag = "Gear";
             MakePreps(Sandy_RPG_Settings.displayAllSlots);
             UpdateSize();
-    }
+        }
 
         protected override void UpdateSize()
         {

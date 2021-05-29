@@ -21,8 +21,8 @@ namespace CEPatches
         public static readonly Texture2D texBulk = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Bulk_Icon", true);
         static RPG_CEPatch()
         {
-            if (ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageId == "ceteam.combatextended") == null
-                || ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageId == "sandy.rpgstyleinventory.avilmask.revamped") == null)
+            if (ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageIdNonUnique == "ceteam.combatextended") == null
+                || ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageIdNonUnique == "sandy.rpgstyleinventory.avilmask.revamped") == null)
                 return;
             //
             //shenanigans to hide HarmonyLib from StartupConstructor

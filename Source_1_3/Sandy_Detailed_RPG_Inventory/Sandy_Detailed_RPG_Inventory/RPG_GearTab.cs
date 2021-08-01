@@ -323,7 +323,6 @@ namespace Sandy_Detailed_RPG_Inventory
         {
             Vector2 pos = new Vector2(rect.width, rect.height);
 
-            
             GUI.DrawTexture(rect, PortraitsCache.Get(pawn, pos, Rot4.South, PawnTextureCameraOffset, 1.18f));
         }
 

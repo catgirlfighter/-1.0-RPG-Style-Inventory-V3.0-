@@ -8,7 +8,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using Sandy_Detailed_RPG_Inventory;
 using Sandy_Detailed_RPG_Inventory.MODIntegrations;
-using CombatExtended;
 using Verse.Sound;
 using Verse.AI;
 using System.Reflection.Emit;
@@ -18,9 +17,10 @@ namespace CEPatches
     [StaticConstructorOnStartup]
     static class RPG_CEPatch
     {
-        public static readonly Texture2D texBulk = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Bulk_Icon", true);
+        public static readonly Texture2D texBulk = null;
         static RPG_CEPatch()
         {
+            texBulk = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Bulk_Icon", true);
             if (ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageIdNonUnique == "ceteam.combatextended") == null
                 || ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageIdNonUnique == "sandy.rpgstyleinventory.avilmask.revamped") == null)
                 return;
@@ -152,11 +152,11 @@ namespace CEPatches
 
                 if (inventory)
                 {
-                    __result = string.Concat(new object[] { __result, "\n", thing.GetBulkTip() });
+                    __result = string.Concat(new object[] { __result, "\n", thing.getBulkTip() });
                 }
                 else
                 {
-                    __result = string.Concat(new object[] { __result, "\n", thing.GetWeightAndBulkTip() });
+                    __result = string.Concat(new object[] { __result, "\n", thing.getWeightAndBulkTip() });
                 }
 
                 if (thing.def.useHitPoints)
@@ -170,7 +170,6 @@ namespace CEPatches
                         thing.MaxHitPoints
                     });
                 }
-
                 return false;
             }
 
@@ -217,8 +216,8 @@ namespace CEPatches
                 //  
                 Pawn pawn = (Pawn)LSelPawnForGear.GetValue(__instance);
                 bool flag;
-                Loadout loadout = pawn.GetLoadout();
-                if (pawn.IsColonist && (loadout == null || loadout.Slots.NullOrEmpty<LoadoutSlot>()))
+                var loadout = pawn.getLoadout();
+                if (pawn.IsColonist && (loadout == null || CEAccess.loadoutIsEmpty(loadout)))
                 {
                     if (!pawn.inventory.innerContainer.Any<Thing>())
                     {
@@ -243,10 +242,10 @@ namespace CEPatches
                 bool pressed = Widgets.ButtonText(rect, "CE_MakeLoadout".Translate(), true, true, true);
                 if (pressed)
                 {
-                    loadout = pawn.GenerateLoadoutFromPawn();
-                    LoadoutManager.AddLoadout(loadout);
-                    pawn.SetLoadout(loadout);
-                    Find.WindowStack.Add(new Dialog_ManageLoadouts(pawn.GetLoadout()));
+                    loadout = pawn.generateLoadoutFromPawn();
+                    CEAccess.addLoadoutToManager(loadout);
+                    pawn.setLoadout(loadout);
+                    Find.WindowStack.Add(CEAccess.dialogManageLoadouts(pawn));
                 }
 
                 num += 3f;
@@ -308,15 +307,7 @@ namespace CEPatches
                     float statIconSize = (float)LstatIconSize.GetValue(null);
                     float stdThingIconSize = (float)LstdThingIconSize.GetValue(null);
                     float stdThingRowHeight = (float)LstdThingRowHeight.GetValue(null);
-                    //
                     string text = AgregateApparelBreakDown(pawn.RaceProps.body.AllParts, list, stat, statValue, unit);
-                    //
-                    //Rect rect1 = new Rect(left, top, statIconSize, statIconSize);
-                    //GUI.DrawTexture(rect1, image);
-                    //TooltipHandler.TipRegion(rect1, label);
-                    //Rect rect2 = new Rect(left + stdThingIconSize + 4f, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize - 4f, statIconSize);
-                    //Widgets.Label(rect2, FormatArmorValue(num, unit));
-                    //TooltipHandler.TipRegion(rect2, text);
                     Rect rect = new Rect(left, top, width, statIconSize);
                     Sandy_Utility.LabelWithIcon(rect, image, statIconSize, statIconSize, label, FormatArmorValue(num, unit), text);
                     top += stdThingRowHeight;
@@ -328,7 +319,7 @@ namespace CEPatches
                 string text = "";
                 foreach (BodyPartRecord bodyPartRecord in bodyParts)
                 {
-                    float num = bodyPartRecord.IsInGroup(CE_BodyPartGroupDefOf.CoveredByNaturalArmor) ? natValue : 0f;
+                    float num = bodyPartRecord.isNaturalArmor() ? natValue : 0f;
                     if (bodyPartRecord.depth == BodyPartDepth.Outside
                         && (bodyPartRecord.coverage >= 0.1 || bodyPartRecord.def == BodyPartDefOf.Eye || bodyPartRecord.def == BodyPartDefOf.Neck))
                     {
@@ -364,9 +355,9 @@ namespace CEPatches
                     bool flag10 = eq != null && eq.TryGetComp<CompEquippable>() != null;
                     if (flag10)
                     {
-                        CompInventory compInventory = SelPawnForGear.TryGetComp<CompInventory>();
+                        object comp = SelPawnForGear.getCompInventory();
                         CompBiocodable compBiocodable = eq.TryGetComp<CompBiocodable>();
-                        bool flag11 = compInventory != null;
+                        bool flag11 = comp != null;
                         if (flag11)
                         {
                             string value = GenLabel.ThingLabel(eq.def, eq.Stuff, 1);
@@ -411,7 +402,7 @@ namespace CEPatches
                                             }
                                             item = new FloatMenuOption(text4, (SelPawnForGear.story != null && SelPawnForGear.WorkTagIsDisabled(WorkTags.Violent)) ? null : new Action(delegate ()
                                             {
-                                                compInventory.TrySwitchToWeapon(eq);
+                                                CEAccess.trySwitchToWeapon(comp, eq);
                                             }), MenuOptionPriority.Default, null, null, 0f, null, null);
                                         }
                                     }
@@ -478,7 +469,7 @@ namespace CEPatches
                             list.Add(new FloatMenuOption(text5, action, MenuOptionPriority.Default, null, null, 0f, null, null));
                         }
                     }
-                    bool flag21 = SelPawnForGear.IsItemQuestLocked(eq);
+                    bool flag21 = SelPawnForGear.isItemQuestLocked(eq);
                     if (flag21)
                     {
                         list.Add(new FloatMenuOption("CE_CannotDropThing".Translate() + ": " + "DropThingLocked".Translate(), null, MenuOptionPriority.Default, null, null, 0f, null, null));
@@ -553,9 +544,14 @@ namespace CEPatches
                 if (pawn.Dead || !(bool)LShouldShowInventory.Invoke(tab, new object[] { pawn }))
                     return;
                 //
-                CompInventory compInventory = pawn.TryGetComp<CompInventory>();
-                if (compInventory == null)
+                float val1;
+                float val2;
+
+                var comp = pawn.getCompInventory();
+                if (comp == null)
                     return;
+
+                CEAccess.getCurrentAndCapacityWeight(comp, out val1, out val2);
                 //
                 float statIconSize = (float)LstatIconSize.GetValue(null);
                 float stdThingIconSize = (float)LstdThingIconSize.GetValue(null);
@@ -564,12 +560,10 @@ namespace CEPatches
                 Rect rect1 = new Rect(left, top, statIconSize, statIconSize);
                 GUI.DrawTexture(rect1, Sandy_Utility.texMass);
                 TooltipHandler.TipRegion(rect1, "CE_Weight".Translate());
-                float val1 = compInventory.currentWeight;
-                float val2 = compInventory.capacityWeight;
                 string str = val1.ToString("0.#");
-                string str2 = CE_StatDefOf.CarryWeight.ValueToString(val2, CE_StatDefOf.CarryWeight.toStringNumberSense, true);
+                string str2 = CEAccess.formatWeight(val2);
                 Rect rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
-                Utility_Loadouts.DrawBar(rect2, val1, val2, "", pawn.GetWeightTip());
+                CEAccess.drawBar(rect2, val1, val2, "", pawn.getWeightTip());
                 rect2.xMin += 4f;
                 rect2.yMin += 2f;
                 Widgets.Label(rect2, str + '/' + str2);
@@ -578,12 +572,11 @@ namespace CEPatches
                 rect1 = new Rect(left, top, statIconSize, statIconSize);
                 GUI.DrawTexture(rect1, texBulk);
                 TooltipHandler.TipRegion(rect1, "CE_Bulk".Translate());
-                val1 = compInventory.currentBulk;
-                val2 = compInventory.capacityBulk;
-                str = CE_StatDefOf.CarryBulk.ValueToString(val1, CE_StatDefOf.CarryBulk.toStringNumberSense, true);
-                str2 = CE_StatDefOf.CarryBulk.ValueToString(val2, CE_StatDefOf.CarryBulk.toStringNumberSense, true);
+                CEAccess.getCurrentAndCapacityBulk(comp, out val1, out val2);
+                str = CEAccess.formatBulk(val1);
+                str2 = CEAccess.formatBulk(val2);
                 rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
-                Utility_Loadouts.DrawBar(rect2, val1, val2, "", pawn.GetBulkTip());
+                CEAccess.drawBar(rect2, val1, val2, "", pawn.getBulkTip());
                 rect2.xMin += 4f;
                 rect2.yMin += 2f;
                 Widgets.Label(rect2, str + '/' + str2);
@@ -623,22 +616,29 @@ namespace CEPatches
                 bool viewList = (bool)LviewList.GetValue(tab);
                 if (!viewList) return position;
                 Pawn pawn = (Pawn)LSelPawn.GetValue(tab);
-                CompInventory compInventory = pawn.TryGetComp<CompInventory>();
-                if (compInventory == null) return position;
+                var comp = pawn.getCompInventory();
+                if (comp == null) return position;
 
-                PlayerKnowledgeDatabase.KnowledgeDemonstrated(CE_ConceptDefOf.CE_InventoryWeightBulk, KnowledgeAmount.FrameDisplayed);
+                PlayerKnowledgeDatabase.KnowledgeDemonstrated(CEAccess.getConcept_InventoryWeightBulk(), KnowledgeAmount.FrameDisplayed);
                 position.height -= 55f;
                 Rect rect = new Rect(15f, position.yMax + 7.5f, position.width - 10f, 20f);
                 Rect rect2 = new Rect(15f, rect.yMax + 7.5f, position.width - 10f, 20f);
-                Utility_Loadouts.DrawBar(rect2, compInventory.currentBulk, compInventory.capacityBulk, "CE_Bulk".Translate(), pawn.GetBulkTip());
-                Utility_Loadouts.DrawBar(rect, compInventory.currentWeight, compInventory.capacityWeight, "CE_Weight".Translate(), pawn.GetWeightTip());
+
+                float curB;
+                float capB;
+                CEAccess.getCurrentAndCapacityBulk(comp, out curB, out capB);
+                CEAccess.drawBar(rect2, curB, capB, "CE_Bulk".Translate(), pawn.getBulkTip());
+                float curW;
+                float capW;
+                CEAccess.getCurrentAndCapacityWeight(comp, out curW, out capW);
+                CEAccess.drawBar(rect, curW, capW, "CE_Weight".Translate(), pawn.getWeightTip());
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
-                string str = CE_StatDefOf.CarryBulk.ValueToString(compInventory.currentBulk, CE_StatDefOf.CarryBulk.toStringNumberSense, true);
-                string str2 = CE_StatDefOf.CarryBulk.ValueToString(compInventory.capacityBulk, CE_StatDefOf.CarryBulk.toStringNumberSense, true);
+                string str = CEAccess.formatBulk(curB);
+                string str2 = CEAccess.formatBulk(capB);
                 Widgets.Label(rect2, str + "/" + str2);
-                string str3 = compInventory.currentWeight.ToString("0.#");
-                string str4 = CE_StatDefOf.CarryWeight.ValueToString(compInventory.capacityWeight, CE_StatDefOf.CarryWeight.toStringNumberSense, true);
+                string str3 = curW.ToString("0.#");
+                string str4 = CEAccess.formatWeight(capW);
                 Widgets.Label(rect, str3 + "/" + str4);
                 Text.Anchor = TextAnchor.UpperLeft;
                 return position;

@@ -32,6 +32,8 @@ namespace Sandy_Detailed_RPG_Inventory
         private bool viewList = false;
         private ThingDef cacheddef = null;
         private bool cachedSimplifiedView = false;
+        private bool showHat = false;
+        private Rot4 rot = new Rot4(2);
 
         private bool simplifiedView
         {
@@ -254,23 +256,38 @@ namespace Sandy_Detailed_RPG_Inventory
                             HashSet<int> usedSlots = new HashSet<int>();
                             foreach (Apparel current2 in SelPawnForGear.apparel.WornApparel)
                             {
-                                ItemSlotDef slot = dict[current2.def];
-                                if (slot == null)
+                                List<ItemSlotDef> slotlist = dict[current2.def];
+                                if (slotlist == null)
                                 {
                                     unslotedApparel.Add(current2);
                                 }
                                 else
-                                {
-                                    usedSlots.Add(slot.listid);
-                                    Rect apRect = new Rect((slot.xPos + offsets[slot.xPos, slot.yPos].x) * thingIconOuter, (slot.yPos + offsets[slot.xPos, slot.yPos].y) * thingIconOuter, thingIconInner, thingIconInner);
-                                    DrawThingRow1(apRect, current2, false);
-                                }
+                                    for (var i = 0; i < slotlist.Count; i++)
+                                    {
+                                        var slot = slotlist[i];
+                                        if (slot.listid == int.MinValue)
+                                            continue;
+                                        else if (usedSlots.Contains(slot.listid))
+                                        {
+                                            unslotedApparel.Add(current2);
+                                            continue;
+                                        }
+                                        //
+                                        if (i == 0 || Sandy_RPG_Settings.displayBG && !usedSlots.Contains(slot.listid))
+                                        {
+                                            Rect apRect = new Rect((slot.xPos + offsets[slot.xPos, slot.yPos].x) * thingIconOuter, (slot.yPos + offsets[slot.xPos, slot.yPos].y) * thingIconOuter, thingIconInner, thingIconInner);
+                                            DrawThingRow1(apRect, current2, false, false, i > 0);
+                                            usedSlots.Add(slot.listid);
+                                            if (i > 0)
+                                                TooltipHandler.TipRegion(apRect, slot.label);
+                                        }
+                                    }
                             }
                             //empty slots
                             foreach (ItemSlotDef slot in currentSlots)
                             {
-                                if (!slot.hidden 
-                                    && !usedSlots.Contains(slot.listid) 
+                                if (!slot.hidden
+                                    && !usedSlots.Contains(slot.listid)
                                     && (Sandy_RPG_Settings.displayBG || Sandy_RPG_Settings.displayAllSlots || Sandy_RPG_Settings.displayStaticSlotBG && slot.Default))
                                 {
                                     Rect apRect = new Rect((slot.xPos + offsets[slot.xPos, slot.yPos].x) * thingIconOuter, (slot.yPos + offsets[slot.xPos, slot.yPos].y) * thingIconOuter, thingIconInner, thingIconInner);
@@ -322,13 +339,58 @@ namespace Sandy_Detailed_RPG_Inventory
         private void DrawColonist(Rect rect, Pawn pawn)
         {
             Vector2 pos = new Vector2(rect.width, rect.height);
+            GUI.DrawTexture(rect, PortraitsCache.Get(pawn, pos, rot, PawnTextureCameraOffset, 1.18f, true, true, showHat, true, null, null, true));
+            //
+            var tmp = new Rect(rect.x + rect.width - 24, rect.y + rect.height - 24, 24, 24);
+            tmp.xMin += (tmp.width - 24) / 2;
+            tmp.width = 24;
+            //
+            if (showHat)
+            {
+                if (Widgets.ButtonImage(tmp, Sandy_Utility.texHideHeadgear))
+                {
+                    showHat = false;
+                }
+            }
+            else
+            {
+                if (Widgets.ButtonImage(tmp, Sandy_Utility.texShowHeadgear))
+                {
+                    showHat = true;
+                }
+            }
+            //
 
-            GUI.DrawTexture(rect, PortraitsCache.Get(pawn, pos, Rot4.South, PawnTextureCameraOffset, 1.18f));
+            tmp = new Rect(rect.x + rect.width - 24 * 2 - 2, rect.y + rect.height - 24, 24, 24);
+            if (Widgets.ButtonImage(tmp, TexUI.RotRightTex))
+            {
+                rot.AsInt = rot.AsInt + 1 % 4;
+            }
+            //
+            //tmp = new Rect(rect.x + rect.width - 24, rect.y + rect.height - 24 * 2 - 2, 24, 24);
+            //if (Widgets.ButtonImage(tmp, TexUI.RotRightTex))
+            //{
+            //    rot.AsInt = rot.AsInt - 1 < 0 ? 3 : rot.AsInt - 1;
+            //}
         }
 
-        private void DrawThingRow1(Rect rect, Thing thing, bool inventory = false, bool equipment = false)
+        private void DrawThingRow1(Rect rect, Thing thing, bool inventory = false, bool equipment = false, bool InBackground = false)
         {
             GUI.DrawTexture(rect, Sandy_Utility.texBG);
+            if (InBackground)
+            {
+                if (thing.def.DrawMatSingle != null && thing.def.DrawMatSingle.mainTexture != null)
+                {
+                    Rect rect1 = new Rect(rect.x + 4f, rect.y + 4f, rect.width - 8f, rect.height - 8f);
+                    GUI.color = thing.DrawColor.SaturationChanged(0f);
+                    //Widgets.DrawTextureFitted(rect1, thing.def.uiIcon, thing.def.uiIconScale);
+                    //var tex = Widgets.GetIconFor(thing.def, null, thing.StyleDef);
+                    //tex.o
+                    Widgets.ThingIcon(rect1, thing.def, null, thing.StyleDef, thing.def.uiIconScale * 0.7f, Color.gray.SaturationChanged(0f).ToTransparent(0.5f));
+                }
+                return;
+            }
+
             if (Sandy_RPG_Settings.useColorCoding)
             {
                 QualityCategory c;
@@ -375,7 +437,6 @@ namespace Sandy_Detailed_RPG_Inventory
                 }
             }
 
-            string text = thing.LabelCap;
             if (!Sandy_RPG_Settings.apparelHealthbar)
             {
                 Rect rect5 = rect.ContractedBy(2f);
@@ -390,9 +451,11 @@ namespace Sandy_Detailed_RPG_Inventory
             if (thing.def.DrawMatSingle != null && thing.def.DrawMatSingle.mainTexture != null)
             {
                 Rect rect1 = new Rect(rect.x + 4f, rect.y + 4f, rect.width - 8f, rect.height - 8f);
-                Widgets.ThingIcon(rect1, thing, 1f);
+                Widgets.ThingIcon(rect1, thing, thing.def.uiIconScale);
             }
+
             bool flag = false;
+
             if (Mouse.IsOver(rect))
             {
                 Color oldcolor = GUI.color;
@@ -403,14 +466,14 @@ namespace Sandy_Detailed_RPG_Inventory
                 {
                     Rect rect2 = new Rect(rect.xMax - statIconSize, rect.y, statIconSize, statIconSize);
                     bool flag2 = false;// this.SelPawnForGear.IsQuestLodger() && !(thing is Apparel);
-                    if (SelPawnForGear.IsQuestLodger())flag2 = (inventory || !EquipmentUtility.QuestLodgerCanUnequip(thing, SelPawnForGear));
+                    if (SelPawnForGear.IsQuestLodger()) flag2 = (inventory || !EquipmentUtility.QuestLodgerCanUnequip(thing, SelPawnForGear));
                     Apparel apparel;
                     bool flag3 = (apparel = (thing as Apparel)) != null && SelPawnForGear.apparel != null && SelPawnForGear.apparel.IsLocked(apparel);
                     flag = (flag2 || flag3);
                     if (Mouse.IsOver(rect2))
                     {
-                        if (flag3)TooltipHandler.TipRegion(rect2, "DropThingLocked".Translate());
-                        else if (flag2)TooltipHandler.TipRegion(rect2, "DropThingLodger".Translate());
+                        if (flag3) TooltipHandler.TipRegion(rect2, "DropThingLocked".Translate());
+                        else if (flag2) TooltipHandler.TipRegion(rect2, "DropThingLodger".Translate());
                         else TooltipHandler.TipRegion(rect2, "DropThing".Translate());
                     }
                     Color color = flag ? Color.grey : Color.white;
@@ -434,12 +497,14 @@ namespace Sandy_Detailed_RPG_Inventory
                     rect5.xMin += rect.width - 11f;
                     rect5.yMin = rect5.yMax - rect5.height * pct;
                     if (thing.HitPoints < thing.MaxHitPoints * 0.2f) GUI.DrawTexture(rect5, Sandy_Utility.texRed);
-                    else if(thing.HitPoints < thing.MaxHitPoints * 0.5f) GUI.DrawTexture(rect5, Sandy_Utility.texYellow);
+                    else if (thing.HitPoints < thing.MaxHitPoints * 0.5f) GUI.DrawTexture(rect5, Sandy_Utility.texYellow);
                     else if (thing.HitPoints == thing.MaxHitPoints) GUI.DrawTexture(rect5, Sandy_Utility.texGreen);
                     else GUI.DrawTexture(rect5, Sandy_Utility.texBar);
                 }
             }
+
             Apparel apparel2 = thing as Apparel;
+            string text = thing.LabelCap;
             if (apparel2 != null && SelPawnForGear.outfits != null)
             {
                 if (apparel2.WornByCorpse)
@@ -513,11 +578,15 @@ namespace Sandy_Detailed_RPG_Inventory
         {
             if (SelPawnForGear.Dead || !ShouldShowInventory(SelPawnForGear))
                 return;
-            //
+           //
             float num = MassUtility.GearAndInventoryMass(SelPawnForGear);
             float num2 = MassUtility.Capacity(SelPawnForGear, null);
             Rect rect = new Rect(left, top, width, statIconSize);
-            Sandy_Utility.LabelWithIcon(rect, Sandy_Utility.texMass, statIconSize, statIconSize, "MassCarriedSimple".Translate(), "SandyMassValue".Translate(num.ToString("0.##"), num2.ToString("0.##")));
+            if (Mouse.IsOver(rect)) Widgets.DrawHighlight(rect);
+            GUI.DrawTexture(new Rect(rect.xMin, rect.yMin, statIconSize, statIconSize), Sandy_Utility.texMass);
+            TooltipHandler.TipRegion(rect, "MassCarriedSimple".Translate());
+            rect.xMin += statIconSize;
+            Sandy_Utility.BarWithInvertedText(rect, Math.Min(num / num2, 1f), "SandyMassValue".Translate(num.ToString("0.##"), num2.ToString("0.##")));
             top += stdThingRowHeight;
         }
 
@@ -790,7 +859,7 @@ namespace Sandy_Detailed_RPG_Inventory
             MODIntegration.DrawStats(this, ref top, rect, showArmor);
         }
 
-        protected void DrawInventory1(IEnumerable<Thing> list, ref float top, float left, int horSlots, Func<Thing,int> sortby = null, bool inventory = false)
+        protected void DrawInventory1(IEnumerable<Thing> list, ref float top, float left, int horSlots, Func<Thing, int> sortby = null, bool inventory = false)
         {
             int i = 0;
             if (sortby == null) sortby = x => i;
@@ -805,7 +874,7 @@ namespace Sandy_Detailed_RPG_Inventory
         }
 
         private static Vector2[,] offsets = null;
-        private static Dictionary<ThingDef, ItemSlotDef> dict = null;
+        private static Dictionary<ThingDef, List<ItemSlotDef>> dict = null;
         private static List<ItemSlotDef> slots = null;
         private static List<ItemSlotDef> activeSlots = null;
         private static List<ItemSlotDef> currentSlots = null;
@@ -830,7 +899,7 @@ namespace Sandy_Detailed_RPG_Inventory
             int anchorCol = 3;
             //creating basics
             Sandy_RPG_Settings.FillSimplifiedViewDict();
-            dict = new Dictionary<ThingDef, ItemSlotDef>();
+            dict = new Dictionary<ThingDef, List<ItemSlotDef>>();
             activeSlots = new List<ItemSlotDef>();
             slots = DefDatabase<ItemSlotDef>.AllDefsListForReading.OrderBy(x => x.validationOrder).ToList();
             //getting max values on the grid
@@ -871,23 +940,45 @@ namespace Sandy_Detailed_RPG_Inventory
             int[] columns = new int[maxcolumn + 1];
             int rowoffset = 0;
             int coloffset = 0;
+
+            //List<ItemSlotDef> tmplist = new List<ItemSlotDef>();
             foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading.Where(x => x.apparel != null))
             {
+                if (!dict.ContainsKey(def))
+                    dict[def] = null;
+                //
+                List<ItemSlotDef> list = dict[def];
                 foreach (var slot in slots)
                 {
                     if (slot.Valid(def.apparel))
                     {
-                        dict[def] = slot;
-                        if (slot.listid == int.MinValue)
+                        if (list == null)
+                        {
+                            list = new List<ItemSlotDef>();
+                            list.Add(slot);
+                            //list.AddRange(tmplist);
+                            //tmplist.Clear();
+                            dict[def] = list;
+                        } else
+                            list.Add(slot);
+                        //
+                        if (slot.listid == int.MinValue && list[0] == slot)
                         {
                             activeSlots.Add(slot);
                             slot.listid = activeSlots.Count - 1;
                             rows[slot.yPos]++;
                             columns[slot.xPos]++;
                         }
-                        break;
                     }
-                    dict[def] = null;
+                    else if (slot.Valid(def.apparel, true))
+                    {
+                        if (list == null)
+                        {
+                        //    tmplist.Add(slot);
+                        } else
+                            list.Add(slot);
+                    }
+
                 }
             }
             //offsetting boundaries
@@ -1176,7 +1267,7 @@ namespace Sandy_Detailed_RPG_Inventory
         protected static void updateRightMost()
         {
             rightMost = Sandy_RPG_Settings.rpgTabWidth - slotPanelWidth - statPanelWidth - pawnPanelSize - stdPadding - stdScrollbarWidth >= 0f;
-            
+
             statPanelX = rightMost ? slotPanelWidth + pawnPanelSize + stdPadding : slotPanelWidth;
         }
 
@@ -1228,40 +1319,47 @@ namespace Sandy_Detailed_RPG_Inventory
         [Unsaved(false)]
         public bool hidden = false;
 
-        public bool Valid(ApparelProperties apparelProperties)
+        public bool ValidLayers(ApparelProperties apparelProperties)
         {
-            if (placeholder) return false;
-
-            bool result;
-
             if (apparelLayers.NullOrEmpty())
-            {
-                result = true;
-            }
+                return true;
             else
-            {
-                result = false;
                 foreach (var layer in apparelLayers)
                     if (apparelProperties.layers.Contains(layer))
-                    {
-                        result = true;
-                        break;
-                    }
-            }
+                        return true;
+            //
+            return false;
+        }
 
-            if (result && !bodyPartGroups.NullOrEmpty())
-            {
-                result = false;
+        public bool ValidBodyParts(ApparelProperties apparelProperties)
+        {
+            if (bodyPartGroups.NullOrEmpty())
+                return true;
+            else
                 foreach (var bpg in bodyPartGroups)
                     if (apparelProperties.bodyPartGroups.Contains(bpg))
-                    {
-                        result = true;
-                        break;
-                    }
-            }
-
-            return result;
+                        return true;
+            //
+            return false;
         }
+
+        public bool ValidCoverage(ApparelProperties apparelProperties)
+        {
+            var appBPGs = apparelProperties.GetInterferingBodyPartGroups(BodyDefOf.Human);
+            foreach (var bpg in bodyPartGroups)
+                if (appBPGs.Contains(bpg))
+                    return true;
+            //
+            return false;
+        }
+
+        public bool Valid(ApparelProperties apparelProperties, bool coverage = false)
+        {
+            if (placeholder) return false;
+            return ValidLayers(apparelProperties) && (coverage && ValidCoverage(apparelProperties) || !coverage && ValidBodyParts(apparelProperties));
+        }
+
+
     }
 
     public enum SlotAnchor

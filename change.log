@@ -1,0 +1,11 @@
+4.1.revamp.1
+- broke 1.2 by accident. Separated defs for 1.2 and 1.3 so they don't affect each other;
+- removed 1.0 and 1.1 support. You have an original mod for that;
+- instead of replacing "head eyes", made new slot for "eye cover". Renamed "head eyes" to "overhead eyes";
+
+4.1.revamp.0
+- replaced custom slot "head eyes" (layer "overhead" with left and right eye coverage) with "eyes" (layer "cover eyes") which was added with latest patch;
+- you can now see when large apparel takes multiple slots (according to human body);
+- now if there is overlapping apparel, overlapping items go into unsloted list;
+- made a mass tooltip to look like a bar;
+- added new buttons for colonist model: show/hide headgear and rotate;

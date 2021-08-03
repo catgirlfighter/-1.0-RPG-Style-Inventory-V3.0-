@@ -203,6 +203,9 @@ namespace Sandy_Detailed_RPG_Inventory
         public static readonly Texture2D texTattered = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Tattered");
         public static readonly Texture2D texNotTattered = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Not_Tattered");
         public static readonly Texture2D texFrame = ContentFinder<Texture2D>.Get("UI/Frames/RPG_Frame", true);
+        public static readonly Texture2D texBarFull = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f));
+        public static readonly Texture2D texShowHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Show_Headgear", true);
+        public static readonly Texture2D texHideHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Hide_Headgear", true);
 
         public static bool CustomCheckboxLabeled(Listing listing, string label, ref bool checkOn, string tooltip = null)
         {
@@ -284,6 +287,28 @@ namespace Sandy_Detailed_RPG_Inventory
             Widgets.Label(locrect, label);
             if (tip == null) TooltipHandler.TipRegion(rect, iconlabel);
             else TooltipHandler.TipRegion(locrect, tip);
+        }
+
+        public static void BarWithInvertedText(Rect rect, float pct, string label)
+        {
+            GUI.DrawTexture(rect.ContractedBy(2f), BaseContent.BlackTex);
+            //
+            var rect2 = new Rect(rect);
+            rect2.width *= pct;
+            GUI.DrawTexture(rect2.ContractedBy(4f), texBarFull);
+            rect.xMin += 4;
+            rect.yMin += 2;
+            rect2.xMin += 4;
+            rect2.xMax -= 4;
+            rect2.yMin += 2;
+            var b = Text.WordWrap;
+            Text.WordWrap = false;
+            GUI.color = Color.white;
+            Widgets.Label(rect, label);
+            GUI.color = Color.black;
+            Widgets.Label(rect2, label);
+            GUI.color = Color.white;
+            Text.WordWrap = b;
         }
     }
 }

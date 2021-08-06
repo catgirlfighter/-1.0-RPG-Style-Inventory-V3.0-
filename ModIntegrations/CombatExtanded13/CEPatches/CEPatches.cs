@@ -236,17 +236,26 @@ namespace CEPatches
                 //
                 if (!flag) return;
 
-                num += 3f;
-                Rect rect = new Rect(viewRect.width / 2f + 2f, num, viewRect.width / 2f - 2f, 26f);
-
-                bool pressed = Widgets.ButtonText(rect, "CE_MakeLoadout".Translate(), true, true, true);
-                if (pressed)
+                //num += 3f;
+                Rect rect = new Rect(viewRect.width / 2f, num, viewRect.width / 2f, 26f);
+                Color color = GUI.color;
+                TextAnchor anchor = Text.Anchor;
+                GUI.color = Color.cyan;
+                if (Mouse.IsOver(rect))
+                {
+                    GUI.color = Color.white;
+                }
+                Text.Anchor = TextAnchor.UpperRight;
+                Widgets.Label(rect, "CE_MakeLoadout".Translate());
+                if (Widgets.ButtonInvisible(rect.ContractedBy(2f), true))
                 {
                     loadout = pawn.generateLoadoutFromPawn();
                     CEAccess.addLoadoutToManager(loadout);
                     pawn.setLoadout(loadout);
                     Find.WindowStack.Add(CEAccess.dialogManageLoadouts(pawn));
                 }
+                Text.Anchor = anchor;
+                GUI.color = color;
 
                 num += 3f;
             }

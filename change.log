@@ -1,3 +1,6 @@
+4.1.revamp.2
+- updated CEPatch according to changes in CE;
+
 4.1.revamp.1
 - broke 1.2 by accident. Separated defs for 1.2 and 1.3 so they don't affect each other;
 - removed 1.0 and 1.1 support. You have an original mod for that;

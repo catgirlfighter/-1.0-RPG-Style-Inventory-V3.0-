@@ -1,3 +1,6 @@
+4.1.revamp.3
+- updated locked slots due multi-sloted apparel to work better with alien races, actual items are now higher priority than "locks";
+
 4.1.revamp.2
 - updated CEPatch according to changes in CE;
 

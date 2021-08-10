@@ -92,7 +92,7 @@
 		<yPos>0</yPos>
 		<validationOrder>700</validationOrder>
 		<defName>ItemSlotHead</defName>
-		<label>Head</label>
+		<label>Headgear</label>
 		<apparelLayers>
 			<li>Overhead</li>
 		</apparelLayers>
@@ -108,7 +108,7 @@
 		<yPos>0</yPos>
 		<validationOrder>800</validationOrder>
 		<defName>ItemSlotHeadEyes</defName>
-		<label>Overhead Eyes</label>
+		<label>Headgear Eyes</label>
 		<apparelLayers>
 			<li>Overhead</li>
 		</apparelLayers>

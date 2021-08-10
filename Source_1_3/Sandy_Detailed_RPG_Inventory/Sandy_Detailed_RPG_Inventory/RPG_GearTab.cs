@@ -254,12 +254,13 @@ namespace Sandy_Detailed_RPG_Inventory
                             //equiped apparel
                             curSlotPanelHeight = slotPanelHeight;
                             HashSet<int> usedSlots = new HashSet<int>();
-                            foreach (Apparel current2 in SelPawnForGear.apparel.WornApparel)
+                            List<Pair<ItemSlotDef, Apparel>> lockedSlots = new List<Pair<ItemSlotDef, Apparel>>();
+                            foreach (Apparel apparel in SelPawnForGear.apparel.WornApparel)
                             {
-                                List<ItemSlotDef> slotlist = dict[current2.def];
+                                List<ItemSlotDef> slotlist = dict[apparel.def];
                                 if (slotlist == null)
                                 {
-                                    unslotedApparel.Add(current2);
+                                    unslotedApparel.Add(apparel);
                                 }
                                 else
                                     for (var i = 0; i < slotlist.Count; i++)
@@ -269,19 +270,35 @@ namespace Sandy_Detailed_RPG_Inventory
                                             continue;
                                         else if (usedSlots.Contains(slot.listid))
                                         {
-                                            unslotedApparel.Add(current2);
+                                            unslotedApparel.Add(apparel);
                                             continue;
                                         }
                                         //
-                                        if (i == 0 || Sandy_RPG_Settings.displayBG && !usedSlots.Contains(slot.listid))
+                                        if (i == 0/* || Sandy_RPG_Settings.displayBG && !usedSlots.Contains(slot.listid)*/)
                                         {
                                             Rect apRect = new Rect((slot.xPos + offsets[slot.xPos, slot.yPos].x) * thingIconOuter, (slot.yPos + offsets[slot.xPos, slot.yPos].y) * thingIconOuter, thingIconInner, thingIconInner);
-                                            DrawThingRow1(apRect, current2, false, false, i > 0);
+                                            DrawThingRow1(apRect, apparel, false, false, false);
                                             usedSlots.Add(slot.listid);
-                                            if (i > 0)
-                                                TooltipHandler.TipRegion(apRect, slot.label);
+                                            //if (i > 0)
+                                            //    TooltipHandler.TipRegion(apRect, slot.label);
                                         }
+                                        else
+                                            lockedSlots.Add(new Pair<ItemSlotDef, Apparel>(slot, apparel));
                                     }
+                            }
+                            //locked slots
+                            foreach (var pair in lockedSlots)
+                            {
+                                if (!pair.First.hidden
+                                    && !usedSlots.Contains(pair.First.listid)
+                                    && (Sandy_RPG_Settings.displayBG || Sandy_RPG_Settings.displayAllSlots))
+                                {
+                                    Rect apRect = new Rect((pair.First.xPos + offsets[pair.First.xPos, pair.First.yPos].x) * thingIconOuter, (pair.First.yPos + offsets[pair.First.xPos, pair.First.yPos].y) * thingIconOuter, thingIconInner, thingIconInner);
+                                    DrawThingRow1(apRect, pair.Second, false, false, true);
+                                    usedSlots.Add(pair.First.listid);
+                                    TooltipHandler.TipRegion(apRect, pair.First.label);
+                                }
+
                             }
                             //empty slots
                             foreach (ItemSlotDef slot in currentSlots)
@@ -292,7 +309,6 @@ namespace Sandy_Detailed_RPG_Inventory
                                 {
                                     Rect apRect = new Rect((slot.xPos + offsets[slot.xPos, slot.yPos].x) * thingIconOuter, (slot.yPos + offsets[slot.xPos, slot.yPos].y) * thingIconOuter, thingIconInner, thingIconInner);
                                     GUI.DrawTexture(apRect, Sandy_Utility.texBG);
-                                    Rect tipRect = apRect.ContractedBy(tipContractionSize);
                                     TooltipHandler.TipRegion(apRect, slot.label);
                                 }
                             }

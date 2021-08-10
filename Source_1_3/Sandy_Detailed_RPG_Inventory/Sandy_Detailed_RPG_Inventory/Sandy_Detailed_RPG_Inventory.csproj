@@ -60,7 +60,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="TorannMagic">
-      <HintPath>..\..\..\..\..\..\..\Games\steam\steamapps\workshop\content\294100\1201382956\Assemblies\TorannMagic.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Games\steam\steamapps\workshop\content\294100\1201382956\v1.3\Assemblies\TorannMagic.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">

@@ -33,4 +33,6 @@
   <RPG_Display_Background_Note></RPG_Display_Background_Note>
   <RPG_Display_Static_Slot_Background_Label>Display default solt backgrounds</RPG_Display_Static_Slot_Background_Label>
   <RPG_Display_Static_Slot_Background_Note></RPG_Display_Static_Slot_Background_Note>
+  <RPG_Frame2_Label>Use thick borders</RPG_Frame2_Label>
+  <RPG_Frame2_Note></RPG_Frame2_Note>
 </LanguageData>

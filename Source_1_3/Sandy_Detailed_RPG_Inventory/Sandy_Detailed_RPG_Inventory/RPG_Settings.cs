@@ -27,6 +27,15 @@ namespace Sandy_Detailed_RPG_Inventory
         public static Color colAwful = Color.gray;
         public static bool displayBG = true;
         public static bool displayStaticSlotBG = true;
+        public static Texture2D texFrame = null;
+        public static bool Frame_2px = false;
+
+        public static void resetFrame()
+        {
+            if (Frame_2px) texFrame = Sandy_Utility.texFrame2;
+            else texFrame = Sandy_Utility.texFrame1;
+
+        }
 
         public override void ExposeData()
         {
@@ -46,6 +55,7 @@ namespace Sandy_Detailed_RPG_Inventory
             Scribe_Values.Look(ref colAwful, "colAwful", Color.gray);
             Scribe_Values.Look(ref displayBG, "displayBG", true);
             Scribe_Values.Look(ref displayStaticSlotBG, "displayStaticSlotBG", true);
+            Scribe_Values.Look(ref Frame_2px, "Frame_2px", false);
             //
             if (simplifiedView == null)
                 return;
@@ -57,6 +67,11 @@ namespace Sandy_Detailed_RPG_Inventory
                 Scribe_Values.Look(ref b, l[i].Key.defName + "_simplifiedView", false);
                 simplifiedView[l[i].Key] = b;
             }
+            //
+            //if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            //{
+            //    resetFrame();
+            //}
         }
 
 
@@ -128,10 +143,15 @@ namespace Sandy_Detailed_RPG_Inventory
             }
             listingStandard.CheckboxLabeled("RPG_Dispaly_Temp_On_The_Same_Line_Label".Translate(), ref Sandy_RPG_Settings.displayTempOnTheSameLine, "RPG_Dispaly_Temp_On_The_Same_Line_Note".Translate());
             listingStandard.CheckboxLabeled("RPG_Display_Apparel_Healthbar_Label".Translate(), ref Sandy_RPG_Settings.apparelHealthbar, "RPG_Display_Apparel_Healthbar_Note".Translate());
-
+            //
             listingStandard.CheckboxLabeled("RPG_Color_Codes_Label".Translate(), ref Sandy_RPG_Settings.useColorCoding, "RPG_Color_Codes_Note".Translate());
+            //
             if (Sandy_RPG_Settings.useColorCoding)
             {
+                if (Sandy_Utility.CustomCheckboxLabeled(listingStandard, "RPG_Frame2_Label".Translate(), ref Sandy_RPG_Settings.Frame_2px, "RPG_Frame2_Note".Translate()))
+                {
+                    Sandy_RPG_Settings.resetFrame();
+                }
                 listingStandard.ColorSelector("QualityCategory_Legendary".Translate().CapitalizeFirst(), Sandy_RPG_Settings.colLegendary, c => Sandy_RPG_Settings.colLegendary = c);
                 listingStandard.ColorSelector("QualityCategory_Masterwork".Translate().CapitalizeFirst(), Sandy_RPG_Settings.colMasterwork, c => Sandy_RPG_Settings.colMasterwork = c);
                 listingStandard.ColorSelector("QualityCategory_Excellent".Translate().CapitalizeFirst(), Sandy_RPG_Settings.colExcellent, c => Sandy_RPG_Settings.colExcellent = c);
@@ -202,7 +222,8 @@ namespace Sandy_Detailed_RPG_Inventory
         public static readonly Texture2D texArmorHeat = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_ArmorHeat_Icon", true);
         public static readonly Texture2D texTattered = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Tattered");
         public static readonly Texture2D texNotTattered = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Not_Tattered");
-        public static readonly Texture2D texFrame = ContentFinder<Texture2D>.Get("UI/Frames/RPG_Frame", true);
+        public static readonly Texture2D texFrame1 = ContentFinder<Texture2D>.Get("UI/Frames/RPG_Frame", true);
+        public static readonly Texture2D texFrame2 = ContentFinder<Texture2D>.Get("UI/Frames/RPG_Frame_2", true);
         public static readonly Texture2D texBarFull = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f));
         public static readonly Texture2D texShowHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Show_Headgear", true);
         public static readonly Texture2D texHideHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Hide_Headgear", true);

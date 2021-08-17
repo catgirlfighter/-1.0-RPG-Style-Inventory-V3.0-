@@ -35,6 +35,12 @@ namespace Sandy_Detailed_RPG_Inventory
         private bool showHat = false;
         private Rot4 rot = new Rot4(2);
 
+        public override void OnOpen()
+        {
+
+            Sandy_RPG_Settings.resetFrame();
+        }
+
         private bool simplifiedView
         {
             //constantly searching in dict is slower than checking for cached value
@@ -416,37 +422,37 @@ namespace Sandy_Detailed_RPG_Inventory
                     {
                         case QualityCategory.Legendary:
                             {
-                                Sandy_Utility.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colLegendary);
+                                Sandy_RPG_Settings.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colLegendary);
                                 break;
                             }
                         case QualityCategory.Masterwork:
                             {
-                                Sandy_Utility.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colMasterwork);
+                                Sandy_RPG_Settings.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colMasterwork);
                                 break;
                             }
                         case QualityCategory.Excellent:
                             {
-                                Sandy_Utility.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colExcellent);
+                                Sandy_RPG_Settings.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colExcellent);
                                 break;
                             }
                         case QualityCategory.Good:
                             {
-                                Sandy_Utility.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colGood);
+                                Sandy_RPG_Settings.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colGood);
                                 break;
                             }
                         case QualityCategory.Normal:
                             {
-                                Sandy_Utility.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colNormal);
+                                Sandy_RPG_Settings.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colNormal);
                                 break;
                             }
                         case QualityCategory.Poor:
                             {
-                                Sandy_Utility.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colPoor);
+                                Sandy_RPG_Settings.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colPoor);
                                 break;
                             }
                         case QualityCategory.Awful:
                             {
-                                Sandy_Utility.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colAwful);
+                                Sandy_RPG_Settings.texFrame.DrawTexture(rect, Sandy_RPG_Settings.colAwful);
                                 break;
                             }
                     }

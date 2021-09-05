@@ -27,15 +27,15 @@ namespace Sandy_Detailed_RPG_Inventory
         public static Color colAwful = Color.gray;
         public static bool displayBG = true;
         public static bool displayStaticSlotBG = true;
-        public static Texture2D texFrame = null;
         public static bool Frame_2px = false;
 
         public static void resetFrame()
         {
-            if (Frame_2px) texFrame = Sandy_Utility.texFrame2;
-            else texFrame = Sandy_Utility.texFrame1;
+            if (Frame_2px) Sandy_Utility.texFrame = Sandy_Utility.texFrame2;
+            else Sandy_Utility.texFrame = Sandy_Utility.texFrame1;
 
         }
+        public static Texture2D texFrame { get { return Sandy_Utility.texFrame; } }
 
         public override void ExposeData()
         {
@@ -227,6 +227,7 @@ namespace Sandy_Detailed_RPG_Inventory
         public static readonly Texture2D texBarFull = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f));
         public static readonly Texture2D texShowHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Show_Headgear", true);
         public static readonly Texture2D texHideHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Hide_Headgear", true);
+        public static Texture2D texFrame = null;
 
         public static bool CustomCheckboxLabeled(Listing listing, string label, ref bool checkOn, string tooltip = null)
         {

@@ -1,3 +1,7 @@
+4.1.revamp.5
+- chinese simplified actualized by wycaca;
+- dealt with Texture2D warning;
+
 4.1.revamp.4
 - added an option to use 2px thick quality borders;
 

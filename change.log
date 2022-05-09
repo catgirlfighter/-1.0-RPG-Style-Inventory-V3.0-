@@ -1,3 +1,9 @@
+4.1.revamp.5.2
+- patches for CE integration;
+
+4.1.revamp.5.1
+- chinese simplified updated by gaogzs;
+
 4.1.revamp.5
 - chinese simplified actualized by wycaca;
 - dealt with Texture2D warning;

@@ -58,6 +58,9 @@ namespace CEPatches
             static MethodInfo LHoldTrackerIsHeld;
             static MethodInfo LHoldTrackerForget;
 
+	    static Type CEUtility;
+	    static MethodInfo PartialStat;
+
             static public void DoPatch()
             {
                 Type RPGTab = typeof(Sandy_Detailed_RPG_GearTab);
@@ -87,6 +90,9 @@ namespace CEPatches
                 Utility_HoldTracker = AccessTools.TypeByName("Utility_HoldTracker");
                 LHoldTrackerIsHeld = AccessTools.Method(Utility_HoldTracker, "HoldTrackerIsHeld");
                 LHoldTrackerForget = AccessTools.Method(Utility_HoldTracker, "HoldTrackerForget");
+
+		CEUtility = AccessTools.TypeByName("CE_Utility");
+		PartialStat = AccessTools.Method(CEUtility, "PartialStat", new Type[]{typeof(Apparel), typeof(StatDef), typeof(BodyPartRecord)});
                 //
                 var harmonyInstance = new Harmony("net.avilmask.rimworld.mod.RPG_CEPatches");
                 //
@@ -338,7 +344,7 @@ namespace CEPatches
                             {
                                 if (apparel.def.apparel.CoversBodyPart(bodyPartRecord))
                                 {
-                                    num += apparel.GetStatValue(stat, true);
+                                    num += (float)PartialStat.Invoke(null, new object[]{apparel, stat, bodyPartRecord});
                                 }
                             }
                         text = text + FormatArmorValue(num, unit) + "\n";

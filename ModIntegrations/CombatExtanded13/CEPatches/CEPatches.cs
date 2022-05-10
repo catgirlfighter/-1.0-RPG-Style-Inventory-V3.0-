@@ -58,8 +58,8 @@ namespace CEPatches
             static MethodInfo LHoldTrackerIsHeld;
             static MethodInfo LHoldTrackerForget;
 
-	    static Type CEUtility;
-	    static MethodInfo PartialStat;
+            static Type CEUtility;
+            static MethodInfo PartialStat;
 
             static public void DoPatch()
             {
@@ -91,8 +91,9 @@ namespace CEPatches
                 LHoldTrackerIsHeld = AccessTools.Method(Utility_HoldTracker, "HoldTrackerIsHeld");
                 LHoldTrackerForget = AccessTools.Method(Utility_HoldTracker, "HoldTrackerForget");
 
-		CEUtility = AccessTools.TypeByName("CE_Utility");
-		PartialStat = AccessTools.Method(CEUtility, "PartialStat", new Type[]{typeof(Apparel), typeof(StatDef), typeof(BodyPartRecord)});
+                CEUtility = AccessTools.TypeByName("CE_Utility");
+                if (CEUtility == null) PartialStat = null;
+                else PartialStat = AccessTools.Method(CEUtility, "PartialStat", new Type[]{typeof(Apparel), typeof(StatDef), typeof(BodyPartRecord)});
                 //
                 var harmonyInstance = new Harmony("net.avilmask.rimworld.mod.RPG_CEPatches");
                 //
@@ -340,13 +341,22 @@ namespace CEPatches
                     {
                         text = text + bodyPartRecord.LabelCap + ": ";
                         if (!apparels.EnumerableNullOrEmpty())
-                            foreach (Apparel apparel in apparels)
-                            {
-                                if (apparel.def.apparel.CoversBodyPart(bodyPartRecord))
+                            if(PartialStat == null)
+                                foreach (Apparel apparel in apparels)
                                 {
-                                    num += (float)PartialStat.Invoke(null, new object[]{apparel, stat, bodyPartRecord});
+                                    if (apparel.def.apparel.CoversBodyPart(bodyPartRecord))
+                                    {
+                                        num += apparel.GetStatValue(stat, true);
+                                    }
                                 }
-                            }
+                            else
+                                foreach (Apparel apparel in apparels)
+                                {
+                                    if (apparel.def.apparel.CoversBodyPart(bodyPartRecord))
+                                    {
+                                        num += (float)PartialStat.Invoke(null, new object[] { apparel, stat, bodyPartRecord });
+                                    }
+                                }
                         text = text + FormatArmorValue(num, unit) + "\n";
                     }
                 }

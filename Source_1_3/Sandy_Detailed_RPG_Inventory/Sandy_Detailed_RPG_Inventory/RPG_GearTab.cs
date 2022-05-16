@@ -565,34 +565,34 @@ namespace Sandy_Detailed_RPG_Inventory
 
         public void TryDrawOverallArmor1(ref float top, float left, float width, StatDef stat, string label, Texture image)
         {
-            float num = 0f;
-            float num2 = Mathf.Clamp01(SelPawnForGear.GetStatValue(stat, true));
+            float overall = 0f;
+            float natural = SelPawnForGear.GetStatValue(stat, true);
             List<BodyPartRecord> allParts = SelPawnForGear.RaceProps.body.AllParts;
             List<Apparel> list = (SelPawnForGear.apparel == null) ? null : SelPawnForGear.apparel.WornApparel;
             string tip = "";
             for (int i = 0; i < allParts.Count; i++)
             {
-                float num3 = 1f - num2 / 2f;
-                float rawnum = num2;
+                float partOverall = 1f - Mathf.Clamp01(natural / 2f);
+                float partTotal = natural;
                 if (list != null)
                 {
                     for (int j = 0; j < list.Count; j++)
                     {
                         if (list[j].def.apparel.CoversBodyPart(allParts[i]))
                         {
-                            float num4 = Mathf.Clamp01(list[j].GetStatValue(stat, true));
-                            rawnum += num4;
-                            num3 *= 1f - num4 / 2f;
+                            float part = list[j].GetStatValue(stat, true);
+                            partTotal += part;
+                            partOverall *= 1f - Mathf.Clamp01(part / 2f);
                         }
                     }
                 }
-                num += allParts[i].coverageAbs * (1f - num3);
+                overall += allParts[i].coverageAbs * (1f - partOverall);
                 if (allParts[i].depth == BodyPartDepth.Outside && (allParts[i].coverage >= 0.1 || allParts[i].def == BodyPartDefOf.Eye || allParts[i].def == BodyPartDefOf.Neck))
-                    tip = string.Concat(new string[] { tip, allParts[i].LabelCap, " ", (rawnum).ToStringPercent(), "\n" });
+                    tip = string.Concat(new string[] { tip, allParts[i].LabelCap, " ", partTotal.ToStringPercent(), "\n" });
             }
-            num = Mathf.Clamp(num * 2f, 0f, 2f);
+            overall = Mathf.Clamp(overall * 2f, 0f, 2f);
             Rect rect = new Rect(left, top, width, statIconSize);
-            Sandy_Utility.LabelWithIcon(rect, image, statIconSize, statIconSize, label, num.ToStringPercent(), tip);
+            Sandy_Utility.LabelWithIcon(rect, image, statIconSize, statIconSize, label, overall.ToStringPercent(), tip);
             top += stdThingRowHeight;
         }
 

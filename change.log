@@ -1,3 +1,6 @@
+4.1.revamp.5.4
+- armor breakdown based on body part would show incorrecnt values if armor pieces had values over 100%;
+
 4.1.revamp.5.3
 - more patches for CE integration backward support;
 

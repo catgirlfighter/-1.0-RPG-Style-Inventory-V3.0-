@@ -161,7 +161,7 @@
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
-		<xPos>3</xPos>
+		<xPos>4</xPos>
 		<yPos>1</yPos>
 		<validationOrder>1100</validationOrder>
 		<defName>ItemSlotNeckShell</defName>
@@ -175,7 +175,7 @@
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 	
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
-		<xPos>1</xPos>
+		<xPos>0</xPos>
 		<yPos>1</yPos>
 		<validationOrder>1200</validationOrder>
 		<defName>ItemSlotNeckAccessories</defName>
@@ -189,7 +189,7 @@
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
-		<xPos>5</xPos>
+		<xPos>3</xPos>
 		<yPos>1</yPos>
 		<validationOrder>1300</validationOrder>
 		<defName>ItemSlotNeckOverhead</defName>
@@ -486,7 +486,7 @@
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 	
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
-		<xPos>4</xPos>
+		<xPos>5</xPos>
 		<yPos>1</yPos>
 		<defName>ItemSlotNeckTMCloak_PH</defName>
 		<label>Cloak</label>
@@ -494,7 +494,7 @@
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 	
 	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
-		<xPos>2</xPos>
+		<xPos>1</xPos>
 		<yPos>1</yPos>
 		<defName>ItemSlotNeckTMArtifact_PH</defName>
 		<label>Neck Artifact</label>
@@ -547,5 +547,19 @@
 		<defName>ItemSlotCEStrappedHead_PH</defName>
 		<label>Face</label>
 		<placeholder>true</placeholder>
+	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
+
+	<Sandy_Detailed_RPG_Inventory.ItemSlotDef>
+		<xPos>2</xPos>
+		<yPos>1</yPos>
+		<validationOrder>1050</validationOrder>
+		<defName>ItemSlotJaw</defName>
+		<label>Jaw</label>
+		<apparelLayers>
+			<li>Overhead</li>
+		</apparelLayers>
+		<bodyPartGroups>
+			<li>Mouth</li>
+		</bodyPartGroups>
 	</Sandy_Detailed_RPG_Inventory.ItemSlotDef>
 </Defs>

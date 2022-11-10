@@ -34,10 +34,10 @@ namespace CEPatches
         {
             static MethodInfo LDrawStats1;
             static MethodInfo LDrawStats;
-            static FieldInfo LstatIconSize;
-            static FieldInfo LstdThingIconSize;
-            static FieldInfo LstdThingRowHeight;
-            static FieldInfo LstdLineHeight;
+            //static FieldInfo LstatIconSize;
+            //static FieldInfo LstdThingIconSize;
+            //static FieldInfo LstdThingRowHeight;
+            //static FieldInfo LstdLineHeight;
             static MethodInfo LTryDrawComfyTemperatureRange1;
             static MethodInfo LTryDrawComfyTemperatureRange;
             static PropertyInfo LSelPawnForGear;
@@ -45,7 +45,8 @@ namespace CEPatches
             static PropertyInfo LCanControl;
             static MethodInfo LInterfaceDrop;
             static MethodInfo LInterfaceIngest;
-            static MethodInfo LDrawThingRow1;
+            //static MethodInfo LDrawThingRow1;
+            static MethodInfo LPopupMenu;
             static MethodInfo LDrawThingRow;
             static MethodInfo LShouldShowInventory;
             static MethodInfo LShouldShowOverallArmor;
@@ -63,14 +64,16 @@ namespace CEPatches
 
             static public void DoPatch()
             {
+                //Type tabU = typeof(TabU);
+                //TabU.          
                 Type RPGTab = typeof(Sandy_Detailed_RPG_GearTab);
                 //that's why private stuff sucks ass
                 LDrawStats1 = AccessTools.Method(RPGTab, "DrawStats1");
                 LDrawStats = AccessTools.Method(RPGTab, "DrawStats");
-                LstatIconSize = AccessTools.Field(RPGTab, "statIconSize");
-                LstdThingIconSize = AccessTools.Field(RPGTab, "stdThingIconSize"); ;
-                LstdThingRowHeight = AccessTools.Field(RPGTab, "stdThingRowHeight");
-                LstdLineHeight = AccessTools.Field(RPGTab, "stdLineHeight");
+                //LstatIconSize = AccessTools.Field(RPGTab, "statIconSize");
+                //LstdThingIconSize = AccessTools.Field(RPGTab, "stdThingIconSize"); ;
+                //LstdThingRowHeight = AccessTools.Field(RPGTab, "stdThingRowHeight");
+                //LstdLineHeight = AccessTools.Field(RPGTab, "stdLineHeight");
                 LTryDrawComfyTemperatureRange1 = AccessTools.Method(RPGTab, "TryDrawComfyTemperatureRange1");
                 LTryDrawComfyTemperatureRange = AccessTools.Method(RPGTab, "TryDrawComfyTemperatureRange");
                 LSelPawnForGear = AccessTools.Property(RPGTab, "SelPawnForGear");
@@ -78,7 +81,8 @@ namespace CEPatches
                 LCanControl = AccessTools.Property(RPGTab, "CanControl");
                 LInterfaceDrop = AccessTools.Method(RPGTab, "InterfaceDrop");
                 LInterfaceIngest = AccessTools.Method(RPGTab, "InterfaceIngest");
-                LDrawThingRow1 = AccessTools.Method(RPGTab, "DrawThingRow1");
+                //LDrawThingRow1 = AccessTools.Method(RPGTab, "DrawThingRow1");
+                LPopupMenu = AccessTools.Method(RPGTab, "PopupMenu");
                 LDrawThingRow = AccessTools.Method(RPGTab, "DrawThingRow");
                 LShouldShowInventory = AccessTools.Method(RPGTab, "ShouldShowInventory");
                 LShouldShowOverallArmor = AccessTools.Method(RPGTab, "ShouldShowOverallArmor");
@@ -100,8 +104,11 @@ namespace CEPatches
                 HarmonyMethod hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.DrawStats1Prefix));
                 harmonyInstance.Patch(LDrawStats1, hm, null);
                 //
-                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.DrawThingRow1Postfix));
-                harmonyInstance.Patch(LDrawThingRow1, null, hm);
+                //hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.DrawThingRow1Postfix));
+                //harmonyInstance.Patch(LDrawThingRow1, null, hm);
+                //
+                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.PopupMenuPrefix));
+                harmonyInstance.Patch(LPopupMenu, hm, null);
                 //
                 hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.ThingDetailedTipPrefix));
                 harmonyInstance.Patch(LThingDetailedTip, hm);
@@ -145,12 +152,20 @@ namespace CEPatches
                 return false;
             }
 
-            static void DrawThingRow1Postfix(object __instance, Rect rect, Thing thing)
+            //static void DrawThingRow1Postfix(object __instance, Rect rect, Thing thing)
+            //{
+            //    var flag = Widgets.ButtonInvisible(rect, true) && Event.current.button == 1;
+            //    if (!flag) return;
+            //    //
+            //    DropDownThingMenu(__instance, thing);
+            //}
+            static bool PopupMenuPrefix(object __instance, ref List<FloatMenuOption> __result, Pawn pawn, Thing thing, bool inventory)
             {
-                var flag = Widgets.ButtonInvisible(rect, true) && Event.current.button == 1;
-                if (!flag) return;
+                //var flag = Widgets.ButtonInvisible(rect, true) && Event.current.button == 1;
+                //if (!flag) return;
                 //
-                DropDownThingMenu(__instance, thing);
+                __result = DropDownThingMenu(__instance, thing, inventory);
+                return false;
             }
 
             static bool ThingDetailedTipPrefix(ref string __result, Thing thing, bool inventory)
@@ -182,10 +197,11 @@ namespace CEPatches
 
             static void DrawThingRowPostfix(object __instance, ref float y, float width, Thing thing)
             {
-                Rect rect = new Rect(0, y - (float)LstdThingRowHeight.GetValue(null), width, (float)LstdThingRowHeight.GetValue(null));
+                Rect rect = new Rect(0, y - TabU.stdThingRowHeight, width, TabU.stdThingRowHeight);
                 bool flag = Widgets.ButtonInvisible(rect, true) && Event.current.button == 1;
                 if (!flag) return;
-                DropDownThingMenu(__instance, thing);
+                FloatMenu window = new FloatMenu(DropDownThingMenu(__instance, thing, false), thing.LabelCap, false);
+                Find.WindowStack.Add(window);
             }
 
             static void InterfaceDropPrefix(object __instance, Thing t)
@@ -320,13 +336,13 @@ namespace CEPatches
                 //
                 if (num > 0.0001f)
                 {
-                    float statIconSize = (float)LstatIconSize.GetValue(null);
-                    float stdThingIconSize = (float)LstdThingIconSize.GetValue(null);
-                    float stdThingRowHeight = (float)LstdThingRowHeight.GetValue(null);
+                    //float statIconSize = TabU.statIconSize;
+                    //float stdThingIconSize = TabU.stdThingIconSize;
+                    //float stdThingRowHeight = TabU.stdThingRowHeight;
                     string text = AgregateApparelBreakDown(pawn.RaceProps.body.AllParts, list, stat, statValue, unit);
-                    Rect rect = new Rect(left, top, width, statIconSize);
-                    Sandy_Utility.LabelWithIcon(rect, image, statIconSize, statIconSize, label, FormatArmorValue(num, unit), text);
-                    top += stdThingRowHeight;
+                    Rect rect = new Rect(left, top, width, TabU.statIconSize);
+                    Sandy_Utility.LabelWithIcon(rect, image, TabU.statIconSize, TabU.statIconSize, label, FormatArmorValue(num, unit), text);
+                    top += TabU.stdThingRowHeight;
                 }
             }
 
@@ -363,7 +379,7 @@ namespace CEPatches
                 return text;
             }
 
-            static void DropDownThingMenu(object tab, Thing thing)
+            static List<FloatMenuOption> DropDownThingMenu(object tab, Thing thing, bool inventory)
             {
                 Pawn SelPawnForGear = (Pawn)LSelPawnForGear.GetValue(tab);
                 Pawn SelPawn = (Pawn)LSelPawn.GetValue(tab);
@@ -376,6 +392,27 @@ namespace CEPatches
                 //bool canControl = this.CanControl;
                 if (canControl)
                 {
+                    var app = thing as Apparel;
+                    
+                    bool eqLocked = SelPawnForGear.IsQuestLodger() && (inventory || !EquipmentUtility.QuestLodgerCanUnequip(thing, SelPawnForGear));
+                    bool apLocked = app != null && SelPawnForGear.apparel?.IsLocked(app) == true;
+
+                    if (!apLocked && !eqLocked && SelPawnForGear.apparel?.Contains(app) == true && SelPawnForGear.outfits?.forcedHandler != null)
+                        if (SelPawnForGear.outfits.forcedHandler.IsForced(app) == true)
+                        {
+                            list.Add(new FloatMenuOption($"{"ForcedApparel".Translate()}: {"ClearForcedApparel".Translate()}", delegate ()
+                            {
+                                SelPawnForGear.outfits.forcedHandler.ForcedApparel.Remove(app);
+                            }, Sandy_Utility.texForced, Color.white));
+                        }
+                        else
+                        {
+                            list.Add(new FloatMenuOption("ForcedApparel".Translate(), delegate ()
+                            {
+                                SelPawnForGear.outfits.forcedHandler.ForcedApparel.Add(app);
+                            }, Sandy_Utility.texForced, Color.white));
+                        }
+
                     ThingWithComps eq = thing as ThingWithComps;
                     bool flag10 = eq != null && eq.TryGetComp<CompEquippable>() != null;
                     if (flag10)
@@ -524,8 +561,10 @@ namespace CEPatches
                         list.Add(new FloatMenuOption("CE_HoldTrackerForget".Translate(), action2, MenuOptionPriority.Default, null, null, 0f, null, null));
                     }
                 }
-                FloatMenu window = new FloatMenu(list, thing.LabelCap, false);
-                Find.WindowStack.Add(window);
+
+                return list;
+                //FloatMenu window = new FloatMenu(list, thing.LabelCap, false);
+                //Find.WindowStack.Add(window);
             }
 
             static void InterfaceDropHaul(Pawn pawn, Thing thing, Pawn selPawn)
@@ -578,9 +617,9 @@ namespace CEPatches
 
                 CEAccess.getCurrentAndCapacityWeight(comp, out val1, out val2);
                 //
-                float statIconSize = (float)LstatIconSize.GetValue(null);
-                float stdThingIconSize = (float)LstdThingIconSize.GetValue(null);
-                float stdThingRowHeight = (float)LstdThingRowHeight.GetValue(null);
+                float statIconSize = TabU.statIconSize;
+                float stdThingIconSize = TabU.stdThingIconSize;
+                float stdThingRowHeight = TabU.stdThingRowHeight;
                 //weight
                 Rect rect1 = new Rect(left, top, statIconSize, statIconSize);
                 GUI.DrawTexture(rect1, Sandy_Utility.texMass);
@@ -620,19 +659,19 @@ namespace CEPatches
                 //
                 if (num > 0.0001f)
                 {
-                    float statIconSize = (float)LstatIconSize.GetValue(null);
-                    float stdThingIconSize = (float)LstdThingIconSize.GetValue(null);
-                    float stdThingRowHeight = (float)LstdThingRowHeight.GetValue(null);
+                    //float statIconSize = TabU.statIconSize;
+                    //float stdThingIconSize = TabU.stdThingIconSize;
+                    //float stdThingRowHeight = TabU.stdThingRowHeight;
                     //
                     string text = AgregateApparelBreakDown(pawn.RaceProps.body.AllParts, list, stat, statValue, unit);
                     //
-                    Rect rect1 = new Rect(0f, top, width, stdThingRowHeight);
+                    Rect rect1 = new Rect(0f, top, width, TabU.stdThingRowHeight);
                     Widgets.Label(rect1, label.Truncate(120f, null));
 
                     rect1.xMin += 120f;
                     Widgets.Label(rect1, FormatArmorValue(num, unit));
                     TooltipHandler.TipRegion(rect1, text);
-                    top += (float)LstdLineHeight.GetValue(null);
+                    top += TabU.stdLineHeight;
                 }
             }
 

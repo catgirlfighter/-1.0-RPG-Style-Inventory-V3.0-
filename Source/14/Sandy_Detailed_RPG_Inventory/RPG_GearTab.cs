@@ -610,7 +610,6 @@ namespace Sandy_Detailed_RPG_Inventory
             bool eqLocked = SelPawnForGear.IsQuestLodger() && (inventory || !EquipmentUtility.QuestLodgerCanUnequip(thing, SelPawnForGear));
             bool apLocked = apparel != null && SelPawnForGear.apparel != null && SelPawnForGear.apparel.IsLocked(apparel);
 
-            Action action = null;
             if (!apLocked && !eqLocked && pawn.apparel?.Contains(apparel) == true && pawn.outfits?.forcedHandler != null)
                 if (pawn.outfits.forcedHandler.IsForced(apparel) == true)
                 {
@@ -627,6 +626,7 @@ namespace Sandy_Detailed_RPG_Inventory
                     }, Sandy_Utility.texForced, Color.white));
                 }
 
+            Action action = null;
             if (!apLocked && !eqLocked)
                 action = () =>
                 {

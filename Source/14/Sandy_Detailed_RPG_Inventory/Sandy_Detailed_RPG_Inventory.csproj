@@ -91,6 +91,7 @@
     <Compile Include="RPG_GearTab.cs" />
     <Compile Include="RPG_ModIntegration.cs" />
     <Compile Include="RPG_Settings.cs" />
+    <Compile Include="SlotUtility.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -117,9 +117,9 @@ namespace Sandy_Detailed_RPG_Inventory
             listingStandard.Label("RPG_Inventory_Width".Translate());
             listingStandard.TextFieldNumeric(ref Sandy_RPG_Settings.rpgTabWidth, ref tabWidth);
             string s;
-            if (Sandy_Detailed_RPG_GearTab.minRecommendedWidth == Sandy_RPG_Settings.rpgTabWidth)
+            if (Slots.minRecommendedWidth == Sandy_RPG_Settings.rpgTabWidth)
                 s = "RPG_AutoFitWidth_Wide_Button_Label".Translate();
-            else if (Sandy_Detailed_RPG_GearTab.maxRecommendedWidth == Sandy_RPG_Settings.rpgTabWidth)
+            else if (Slots.maxRecommendedWidth == Sandy_RPG_Settings.rpgTabWidth)
                 s = "RPG_AutoFitWidth_Tight_Button_Label".Translate();
             else
                 s = "RPG_AutoFitWidth_Button_Label".Translate();
@@ -167,17 +167,17 @@ namespace Sandy_Detailed_RPG_Inventory
 
         protected void DoFit(bool displayAllSlots, bool reset = false)
         {
-            Sandy_Detailed_RPG_GearTab.MakePreps(displayAllSlots, reset);
-            float minWidth = Sandy_Detailed_RPG_GearTab.minRecommendedWidth;
-            float maxWidth = Sandy_Detailed_RPG_GearTab.maxRecommendedWidth;
+            Slots.MakePreps(displayAllSlots, reset);
+            float minWidth = Slots.minRecommendedWidth;
+            float maxWidth = Slots.maxRecommendedWidth;
 
             if(!reset)
-                if (Sandy_RPG_Settings.rpgTabWidth == Sandy_Detailed_RPG_GearTab.minRecommendedWidth) //ability to switch between recommended sizes
+                if (Sandy_RPG_Settings.rpgTabWidth == Slots.minRecommendedWidth) //ability to switch between recommended sizes
                 {
                     tabWidth = maxWidth.ToString();
                     return;
                 }
-                else if (Sandy_RPG_Settings.rpgTabWidth == Sandy_Detailed_RPG_GearTab.maxRecommendedWidth)
+                else if (Sandy_RPG_Settings.rpgTabWidth == Slots.maxRecommendedWidth)
                 {
                     tabWidth = minWidth.ToString();
                     return;
@@ -227,6 +227,7 @@ namespace Sandy_Detailed_RPG_Inventory
         public static readonly Texture2D texBarFull = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f));
         public static readonly Texture2D texShowHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Show_Headgear", true);
         public static readonly Texture2D texHideHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Hide_Headgear", true);
+        public static readonly Texture2D texLock = ContentFinder<Texture2D>.Get("UI/Icons/lock", true);
         public static Texture2D texFrame = null;
 
         public static bool CustomCheckboxLabeled(Listing listing, string label, ref bool checkOn, string tooltip = null)

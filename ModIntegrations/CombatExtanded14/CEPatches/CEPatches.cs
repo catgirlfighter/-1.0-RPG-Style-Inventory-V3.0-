@@ -124,8 +124,8 @@ namespace CEPatches
 
             static bool DrawStats1Prefix(object __instance, ref float top, float left)
             {
-                TryDrawMassInfo1(__instance, ref top, left, Sandy_Detailed_RPG_GearTab.statPanelWidth);
-                object[] args = new object[] { top, left, Sandy_Detailed_RPG_GearTab.statPanelWidth };
+                TryDrawMassInfo1(__instance, ref top, left, TabU.statPanelWidth);
+                object[] args = new object[] { top, left, TabU.statPanelWidth };
                 LTryDrawComfyTemperatureRange1.Invoke(__instance, args);
                 top = (float)args[0];
                 //

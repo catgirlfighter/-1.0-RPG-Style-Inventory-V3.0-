@@ -28,7 +28,12 @@ namespace Sandy_Detailed_RPG_Inventory.MODIntegrations
         {
             RWoMIntegration.DrawStats(tab, ref top, rect, showArmor);
         }
-    }
+
+        public static void DrawSlotIcons(Sandy_Detailed_RPG_GearTab tab, Thing thing, bool equipment, bool inventory, Rect slotRect, ref float x, ref float y)
+        {
+            RWoMIntegration.DrawSlotIcons(tab, thing, equipment, inventory, slotRect, ref x, ref y);
+        }
+     }
 
     [StaticConstructorOnStartup]
     static class RWoMIntegration
@@ -86,7 +91,7 @@ namespace Sandy_Detailed_RPG_Inventory.MODIntegrations
                 return;
 
             if (showArmor)
-                tab.TryDrawOverallArmor1(ref top, left, Sandy_Detailed_RPG_GearTab.statPanelWidth, GetHarmonyStatDef(), 
+                tab.TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, GetHarmonyStatDef(), 
                     "RPG_Style_Inventory_ArmorHarmony".Translate(), texArmorHarmony);
         }
 
@@ -97,6 +102,17 @@ namespace Sandy_Detailed_RPG_Inventory.MODIntegrations
 
             if (showArmor)
                 tab.TryDrawOverallArmor(ref top, rect.width, GetHarmonyStatDef(), "RPG_Style_Inventory_ArmorHarmony".Translate());
+        }
+
+        public static void DrawSlotIcons(Sandy_Detailed_RPG_GearTab tab, Thing thing, bool equipment, bool inventory, Rect slotRect, ref float x, ref float y)
+        {
+            if (!Active || !ShouldDrawEnchantmentIcon(thing))
+                return;
+
+            tab.DrawSlotIcon(slotRect, ref x, ref y, texEnchanted, GetEnchantmentString(thing));
+            //Rect rectM = new Rect(x, y, 20f, 20f);
+            //GUI.DrawTexture(rectM, texEnchanted);
+            //TooltipHandler.TipRegion(rectM, GetEnchantmentString(thing));
         }
     }
 }

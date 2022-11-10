@@ -1,3 +1,12 @@
+4.1.revamp.5.7
+- diplaying buttons on icon restricted me from adding some extra options, so I've done some changes;
+- removed button icons from slots;
+- added context menu (r-click) to slots;
+- added an option to (un)force clothes individually;
+- added "locked" (by quest) icon;
+- made so slot icons are arranged in direct order;
+- made some changes so it's easier to mod in icons and new options for context menu;
+
 4.1.revamp.5.6
 - new slot for jaw/mouth (clothmask aka facemask);
 

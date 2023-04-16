@@ -743,7 +743,8 @@ namespace Sandy_Detailed_RPG_Inventory
             }
             if (CanControlColonist)
             {
-                if (/*FoodUtility.WillIngestFromInventoryNow(SelPawnForGear, thing)*/thing.IngestibleNow && SelPawnForGear.WillEat(thing))
+                if (/*FoodUtility.WillIngestFromInventoryNow(SelPawnForGear, thing)*/
+                    thing.IngestibleNow && SelPawnForGear.WillEat_NewTemp(thing) || thing.def.IsDrug && SelPawnForGear.CanTakeDrug(thing.def))
                 {
                     Rect rect3 = new Rect(rect.width - TabU.statIconSize, y, TabU.statIconSize, TabU.statIconSize);
                     TooltipHandler.TipRegionByKey(rect3, "ConsumeThing", thing.LabelNoCount, thing);

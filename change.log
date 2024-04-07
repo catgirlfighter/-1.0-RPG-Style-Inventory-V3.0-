@@ -1,3 +1,6 @@
+4.1.revamp.6
+- for 1.5. I guess it works?;
+
 4.1.revamp.5.8
 - fixed a button to consume drug from inventory. One of the checks was changed so drugs now never count as "edible" (meaning like a food), but checked separately as a "consumable drug";
 

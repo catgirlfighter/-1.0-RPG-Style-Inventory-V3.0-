@@ -282,13 +282,11 @@ namespace Sandy_Detailed_RPG_Inventory
                                             continue;
                                         }
                                         //
-                                        if (i == 0/* || Sandy_RPG_Settings.displayBG && !usedSlots.Contains(slot.listid)*/)
+                                        if (i == 0)
                                         {
                                             Rect apRect = new Rect((slot.xPos + Slots.offsets[slot.xPos, slot.yPos].x) * TabU.thingIconOuter, (slot.yPos + Slots.offsets[slot.xPos, slot.yPos].y) * TabU.thingIconOuter, TabU.thingIconInner, TabU.thingIconInner);
                                             DrawThingRow1(apRect, apparel, false, false, false);
                                             usedSlots.Add(slot.listid);
-                                            //if (i > 0)
-                                            //    TooltipHandler.TipRegion(apRect, slot.label);
                                         }
                                         else
                                             lockedSlots.Add(new Pair<ItemSlotDef, Apparel>(slot, apparel));
@@ -390,12 +388,6 @@ namespace Sandy_Detailed_RPG_Inventory
             {
                 rot.AsInt = rot.AsInt + 1 % 4;
             }
-            //
-            //tmp = new Rect(rect.x + rect.width - 24, rect.y + rect.height - 24 * 2 - 2, 24, 24);
-            //if (Widgets.ButtonImage(tmp, TexUI.RotRightTex))
-            //{
-            //    rot.AsInt = rot.AsInt - 1 < 0 ? 3 : rot.AsInt - 1;
-            //}
         }
 
         private void DrawThingRow1(Rect rect, Thing thing, bool inventory = false, bool equipment = false, bool InBackground = false)
@@ -407,9 +399,6 @@ namespace Sandy_Detailed_RPG_Inventory
                 {
                     Rect rect1 = new Rect(rect.x + 4f, rect.y + 4f, rect.width - 8f, rect.height - 8f);
                     GUI.color = thing.DrawColor.SaturationChanged(0f);
-                    //Widgets.DrawTextureFitted(rect1, thing.def.uiIcon, thing.def.uiIconScale);
-                    //var tex = Widgets.GetIconFor(thing.def, null, thing.StyleDef);
-                    //tex.o
                     Widgets.ThingIcon(rect1, thing.def, null, thing.StyleDef, thing.def.uiIconScale * 0.7f, Color.gray.SaturationChanged(0f).ToTransparent(0.5f));
                 }
                 return;
@@ -494,46 +483,10 @@ namespace Sandy_Detailed_RPG_Inventory
 
             string text = thing.LabelCap;
             DrawSlotIcons(thing, equipment, inventory, rect, rect.x, rect.yMax - 20f);
-            /*
-            Apparel apparel = thing as Apparel;
-            bool eqLocked = SelPawnForGear.IsQuestLodger() && (inventory || !EquipmentUtility.QuestLodgerCanUnequip(thing, SelPawnForGear))
-                || apparel != null && SelPawnForGear.apparel != null && SelPawnForGear.apparel.IsLocked(apparel);
 
-            if (apparel != null && SelPawnForGear.outfits != null)
-            {
-                if (apparel.WornByCorpse)
-                {
-                    Rect rect3 = new Rect(rect.xMax - 20f, rect.yMax - 20f, 20f, 20f);
-                    GUI.DrawTexture(rect3, Sandy_Utility.texTainted);
-                    TooltipHandler.TipRegion(rect3, "WasWornByCorpse".Translate());
-                }
-                if (SelPawnForGear.outfits.forcedHandler.IsForced(apparel))
-                {
-                    text += ", " + "ApparelForcedLower".Translate();
-                    Rect rect4 = new Rect(rect.x, rect.yMax - 20f, 20f, 20f);
-                    GUI.DrawTexture(rect4, Sandy_Utility.texForced);
-                    TooltipHandler.TipRegion(rect4, "ForcedApparel".Translate());
-                }
-            }
-            if (equipment)
-            {
-                if (SelPawnForGear.story.traits.HasTrait(TraitDefOf.Brawler) && thing.def.IsRangedWeapon)
-                {
-                    Rect rect6 = new Rect(rect.x, rect.yMax - 20f, 20f, 20f);
-                    GUI.DrawTexture(rect6, Sandy_Utility.texForced);
-                    TooltipHandler.TipRegion(rect6, "BrawlerHasRangedWeapon".Translate());
-                }
-            }
-            if (eqLocked)
-            {
-                text += " (" + "ApparelLockedLower".Translate() + ")";
-            }
-            */
             Text.WordWrap = true;
             string text3 = text + "\n" + ThingDetailedTip(thing, inventory);
             TooltipHandler.TipRegion(rect, text3);
-
-            //MODIntegration.DrawThingRow1(this, rect, thing, equipment);
 
             if (!Mouse.IsOver(rect))
             {
@@ -744,8 +697,7 @@ namespace Sandy_Detailed_RPG_Inventory
             }
             if (CanControlColonist)
             {
-                if (/*FoodUtility.WillIngestFromInventoryNow(SelPawnForGear, thing)*/
-                    thing.IngestibleNow && SelPawnForGear.WillEat(thing) || thing.def.IsDrug && SelPawnForGear.CanTakeDrug(thing.def))
+                if (thing.IngestibleNow && SelPawnForGear.WillEat(thing) || thing.def.IsDrug && SelPawnForGear.CanTakeDrug(thing.def))
                 {
                     Rect rect3 = new Rect(rect.width - TabU.statIconSize, y, TabU.statIconSize, TabU.statIconSize);
                     TooltipHandler.TipRegionByKey(rect3, "ConsumeThing", thing.LabelNoCount, thing);
@@ -825,7 +777,6 @@ namespace Sandy_Detailed_RPG_Inventory
 
         private void TryDrawMassInfo(ref float curY, float width)
         {
-            //Log.Message($"can draw mass info => {SelPawnForGear.Dead}, {!ShouldShowInventory(this.SelPawnForGear)}");
             if (SelPawnForGear.Dead || !ShouldShowInventory(this.SelPawnForGear))
             {
                 return;
@@ -864,16 +815,6 @@ namespace Sandy_Detailed_RPG_Inventory
                 SelPawnForGear.inventory.innerContainer.TryDrop(t, SelPawnForGear.Position, SelPawnForGear.Map, ThingPlaceMode.Near, out Thing thing, null, null);
             }
         }
-
-        /*
-        private void InterfaceIngest(Thing t)
-        {
-            Job job = new Job(JobDefOf.Ingest, t);
-            job.count = Mathf.Min(t.stackCount, t.def.ingestible.maxNumToIngestAtOnce);
-            job.count = Mathf.Min(job.count, FoodUtility.WillIngestStackCountOf(SelPawnForGear, t.def, t.GetStatValue(StatDefOf.Nutrition, true)));
-            SelPawnForGear.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-        }
-        */
 
         private bool ShouldShowInventory(Pawn p)
         {

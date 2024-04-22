@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RimWorld;
 using Verse;
-//using TorannMagic;
+using TorannMagic;
 using UnityEngine;
 
 namespace Sandy_Detailed_RPG_Inventory.MODIntegrations
@@ -56,12 +56,12 @@ namespace Sandy_Detailed_RPG_Inventory.MODIntegrations
 
         static StatDef GetHarmonyStatDef()
         {
-            return null;// TorannMagicDefOf.ArmorRating_Alignment;
+            return TorannMagicDefOf.ArmorRating_Alignment;
         }
 
         static string GetEnchantmentString(Thing apparel2)
         {
-            return null;// TorannMagic.TM_Calc.GetEnchantmentsString(apparel2);
+            return TorannMagic.TM_Calc.GetEnchantmentsString(apparel2);
         }
 
         public static void DrawThingRow1(Sandy_Detailed_RPG_GearTab tab, Rect rect, Thing thing, bool equipment)
@@ -76,8 +76,6 @@ namespace Sandy_Detailed_RPG_Inventory.MODIntegrations
 
         static bool ShouldDrawEnchantmentIcon(Thing item)
         {
-            return false;
-            /*
             bool isEnchanted = false;
             TorannMagic.Enchantment.CompEnchantedItem enchantedItem = item.TryGetComp<TorannMagic.Enchantment.CompEnchantedItem>();
             if (enchantedItem != null && enchantedItem.HasEnchantment)
@@ -85,7 +83,6 @@ namespace Sandy_Detailed_RPG_Inventory.MODIntegrations
                 isEnchanted = true;
             }
             return isEnchanted;
-            */
         }
 
         public static void DrawStats1(Sandy_Detailed_RPG_GearTab tab, ref float top, float left, bool showArmor)

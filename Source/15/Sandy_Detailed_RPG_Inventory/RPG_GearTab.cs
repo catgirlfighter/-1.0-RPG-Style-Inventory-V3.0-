@@ -452,11 +452,13 @@ namespace Sandy_Detailed_RPG_Inventory
             if (!Sandy_RPG_Settings.apparelHealthbar)
             {
                 Rect rect5 = rect.ContractedBy(2f);
-                float num2 = rect5.height * ((float)thing.HitPoints / thing.MaxHitPoints);
+                var hp = (float)thing.HitPoints;
+                var maxhp = Mathf.Max(thing.MaxHitPoints, hp);
+                float num2 = rect5.height * (hp / maxhp);
                 rect5.yMin = rect5.yMax - num2;
                 rect5.height = num2;
 
-                if (thing.HitPoints <= ((float)thing.MaxHitPoints / 2)) GUI.DrawTexture(rect5, Sandy_Utility.texTattered);
+                if (thing.HitPoints <= (maxhp / 2)) GUI.DrawTexture(rect5, Sandy_Utility.texTattered);
                 else GUI.DrawTexture(rect5, Sandy_Utility.texNotTattered);
             }
             //
@@ -493,18 +495,19 @@ namespace Sandy_Detailed_RPG_Inventory
                 GUI.color = Color.white;
                 if (Sandy_RPG_Settings.apparelHealthbar && thing.def.useHitPoints)
                 {
-                    var pct = (float)thing.HitPoints / thing.MaxHitPoints;
+                    var hp = (float)thing.HitPoints;
+                    var maxhp = Mathf.Max((float)thing.MaxHitPoints, hp);
+                    var pct = hp / maxhp;
                     Rect rect5 = rect.ContractedBy(4f);
                     rect5.xMin += rect.width - 11f;
                     rect5.yMin = rect5.yMax - rect5.height * pct;
-                    if (thing.HitPoints < thing.MaxHitPoints * 0.2f) GUI.DrawTexture(rect5, Sandy_Utility.texRed);
-                    else if (thing.HitPoints < thing.MaxHitPoints * 0.5f) GUI.DrawTexture(rect5, Sandy_Utility.texYellow);
-                    else if (thing.HitPoints == thing.MaxHitPoints) GUI.DrawTexture(rect5, Sandy_Utility.texGreen);
+                    if (hp < maxhp * 0.2f) GUI.DrawTexture(rect5, Sandy_Utility.texRed);
+                    else if (hp < maxhp * 0.5f) GUI.DrawTexture(rect5, Sandy_Utility.texYellow);
+                    else if (hp == maxhp) GUI.DrawTexture(rect5, Sandy_Utility.texGreen);
                     else GUI.DrawTexture(rect5, Sandy_Utility.texBar);
                 }
             }
         }
-
 
         public void DrawSlotIcon(Rect slotRect, ref float x, ref float y, Texture2D tex, string tip)
         {

@@ -1,3 +1,6 @@
+4.1.revamp.6.3
+- minor fix for cases when "health background" is used and for some reason apparel hp is higher than max hp;
+
 4.1.revamp.6.2
 - CE post-1.5 support;
 

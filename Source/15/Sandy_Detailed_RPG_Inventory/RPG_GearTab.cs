@@ -337,8 +337,9 @@ namespace Sandy_Detailed_RPG_Inventory
                 }
                 else
                 {
-                    TryDrawMassInfo(ref num, viewRect.width);
-                    TryDrawComfyTemperatureRange(ref num, viewRect.width);
+                    // TryDrawMassInfo(ref num, viewRect.width);
+                    // TryDrawComfyTemperatureRange(ref num, viewRect.width);
+                    DrawViewList(ref num, viewRect);
                 }
             }
             //inventory

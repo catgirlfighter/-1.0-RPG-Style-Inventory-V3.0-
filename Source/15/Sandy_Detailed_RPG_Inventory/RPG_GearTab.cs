@@ -172,9 +172,8 @@ namespace Sandy_Detailed_RPG_Inventory
             rect = rect.ContractedBy(TabU.stdPadding / 2);
             Rect position = new Rect(rect.x, rect.y, rect.width, rect.height);
             Rect outRect = new Rect(0f, 0f, position.width, position.height);
-            GUI.BeginGroup(position);
-
             Rect viewRect = new Rect(0f, 0f, position.width - TabU.stdScrollbarWidth, scrollViewHeight);
+            GUI.BeginGroup(position);
             Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect, true);
 
             int horSlots = Slots.horSlotCount;

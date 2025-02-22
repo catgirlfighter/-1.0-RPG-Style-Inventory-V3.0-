@@ -63,9 +63,8 @@ namespace CEPatches
             static MethodInfo PartialStat;
 
             static public void DoPatch()
-            {
-                //Type tabU = typeof(TabU);
-                //TabU.          
+            {          
+
                 Type RPGTab = typeof(Sandy_Detailed_RPG_GearTab);
                 //that's why private stuff sucks ass
                 LDrawStats1 = AccessTools.Method(RPGTab, "DrawStats1");
@@ -152,18 +151,8 @@ namespace CEPatches
                 return false;
             }
 
-            //static void DrawThingRow1Postfix(object __instance, Rect rect, Thing thing)
-            //{
-            //    var flag = Widgets.ButtonInvisible(rect, true) && Event.current.button == 1;
-            //    if (!flag) return;
-            //    //
-            //    DropDownThingMenu(__instance, thing);
-            //}
             static bool PopupMenuPrefix(object __instance, ref List<FloatMenuOption> __result, Pawn pawn, Thing thing, bool inventory)
             {
-                //var flag = Widgets.ButtonInvisible(rect, true) && Event.current.button == 1;
-                //if (!flag) return;
-                //
                 __result = DropDownThingMenu(__instance, thing, inventory);
                 return false;
             }
@@ -286,18 +275,20 @@ namespace CEPatches
             static IEnumerable<object> FillTabTranspiler(IEnumerable<object> instrs)
             {
                 MethodInfo LBeginGroup = AccessTools.Method(typeof(GUI), nameof(GUI.BeginGroup), new Type[] { typeof(Rect) });
-                MethodInfo LDrawBars = AccessTools.Method(typeof(RPG_CEPatches), nameof(RPG_CEPatches.FillTab_DrawBars));
+                MethodInfo LDrawBars = AccessTools.Method(typeof(RPG_CEPatches), nameof(FillTab_DrawBars));
+                CodeInstruction prev = null;
                 foreach (var i in (instrs))
                 {
                     if ((i as CodeInstruction).opcode == OpCodes.Call && (i as CodeInstruction).operand == (object)LBeginGroup)
                     {
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Call, LDrawBars);
-                        yield return new CodeInstruction(OpCodes.Stloc_1);
-                        yield return new CodeInstruction(OpCodes.Ldloc_1);
+                        yield return new CodeInstruction(OpCodes.Stloc_S, prev.operand);
+                        yield return new CodeInstruction(OpCodes.Ldloc_S, prev.operand);
+                        //yield return new CodeInstruction(OpCodes.Ldloc_1);
                     }
-
                     yield return i;
+                    prev = i as CodeInstruction;
                 }
             }
 

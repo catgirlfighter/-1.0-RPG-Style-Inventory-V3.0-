@@ -1,3 +1,6 @@
+other
+- hotfix for CE;
+
 4.1.revamp.6.4
 - made so mod handles unsupported raceprops a bit more aggressively. By that I mean by default non-humanline raceprops are reverted to basic (vanilla) tab view;
 - shuffled some code around to possibly save a fps or two;

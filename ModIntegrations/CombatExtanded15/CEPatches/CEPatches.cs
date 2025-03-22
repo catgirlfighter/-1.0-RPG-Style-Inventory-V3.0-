@@ -11,6 +11,7 @@ using Sandy_Detailed_RPG_Inventory.MODIntegrations;
 using Verse.Sound;
 using Verse.AI;
 using System.Reflection.Emit;
+using CombatExtended;
 
 namespace CEPatches
 {
@@ -599,43 +600,52 @@ namespace CEPatches
                 if (pawn.Dead || !(bool)LShouldShowInventory.Invoke(tab, new object[] { pawn }))
                     return;
                 //
-                float val1;
-                float val2;
 
                 var comp = pawn.getCompInventory();
                 if (comp == null)
                     return;
-
-                CEAccess.getCurrentAndCapacityWeight(comp, out val1, out val2);
                 //
+                float val1;
+                float val2;
                 float statIconSize = TabU.statIconSize;
                 float stdThingIconSize = TabU.stdThingIconSize;
                 float stdThingRowHeight = TabU.stdThingRowHeight;
+                Rect rect1;
+                Rect rect2;
+                string str;
+                string str2;
                 //weight
-                Rect rect1 = new Rect(left, top, statIconSize, statIconSize);
-                GUI.DrawTexture(rect1, Sandy_Utility.texMass);
-                TooltipHandler.TipRegion(rect1, "CE_Weight".Translate());
-                string str = val1.ToString("0.#");
-                string str2 = CEAccess.formatWeight(val2);
-                Rect rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
-                CEAccess.drawBar(rect2, val1, val2, "", pawn.getWeightTip());
-                rect2.xMin += 4f;
-                rect2.yMin += 2f;
-                Widgets.Label(rect2, str + '/' + str2);
-                top += stdThingRowHeight;
+                if (!CE_StatDefOf.CarryWeight.alwaysHide && CanShowStat(pawn, CE_StatDefOf.CarryWeight))
+                {
+                    CEAccess.getCurrentAndCapacityWeight(comp, out val1, out val2);
+                    rect1 = new Rect(left, top, statIconSize, statIconSize);
+                    GUI.DrawTexture(rect1, Sandy_Utility.texMass);
+                    TooltipHandler.TipRegion(rect1, "CE_Weight".Translate());
+                    str = val1.ToString("0.#");
+                    str2 = CEAccess.formatWeight(val2);
+                    rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
+                    CEAccess.drawBar(rect2, val1, val2, "", pawn.getWeightTip());
+                    rect2.xMin += 4f;
+                    rect2.yMin += 2f;
+                    Widgets.Label(rect2, str + '/' + str2);
+                    top += stdThingRowHeight;
+                }
                 //bulk
-                rect1 = new Rect(left, top, statIconSize, statIconSize);
-                GUI.DrawTexture(rect1, texBulk);
-                TooltipHandler.TipRegion(rect1, "CE_Bulk".Translate());
-                CEAccess.getCurrentAndCapacityBulk(comp, out val1, out val2);
-                str = CEAccess.formatBulk(val1);
-                str2 = CEAccess.formatBulk(val2);
-                rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
-                CEAccess.drawBar(rect2, val1, val2, "", pawn.getBulkTip());
-                rect2.xMin += 4f;
-                rect2.yMin += 2f;
-                Widgets.Label(rect2, str + '/' + str2);
-                top += stdThingRowHeight;
+                if (!CE_StatDefOf.CarryBulk.alwaysHide && CanShowStat(pawn, CE_StatDefOf.CarryBulk))
+                {
+                    CEAccess.getCurrentAndCapacityBulk(comp, out val1, out val2);
+                    rect1 = new Rect(left, top, statIconSize, statIconSize);
+                    GUI.DrawTexture(rect1, texBulk);
+                    TooltipHandler.TipRegion(rect1, "CE_Bulk".Translate());
+                    str = CEAccess.formatBulk(val1);
+                    str2 = CEAccess.formatBulk(val2);
+                    rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
+                    CEAccess.drawBar(rect2, val1, val2, "", pawn.getBulkTip());
+                    rect2.xMin += 4f;
+                    rect2.yMin += 2f;
+                    Widgets.Label(rect2, str + '/' + str2);
+                    top += stdThingRowHeight;
+                }
             }
 
             static void TryDrawOverallArmor(object tab, ref float top, float width, StatDef stat, string label, string unit)
@@ -666,35 +676,64 @@ namespace CEPatches
                 }
             }
 
+            static private bool CanShowStat(Pawn pawn, StatDef statDef)
+            {
+                return pawn.def.race.Humanlike && statDef.showOnHumanlikes
+                    || pawn.def.race.Animal && statDef.showOnAnimals
+                    || pawn.def.race.IsAnomalyEntity && statDef.showOnEntities
+                    || statDef.showOnMechanoids;
+            }
+
             static Rect FillTab_DrawBars(Rect position, object tab)
             {
                 bool viewList = (bool)LviewList.GetValue(tab);
-                if (!viewList) return position;
-                Pawn pawn = (Pawn)LSelPawn.GetValue(tab);
-                var comp = pawn.getCompInventory();
-                if (comp == null) return position;
+                if (!viewList)
+                    return position;
 
-                PlayerKnowledgeDatabase.KnowledgeDemonstrated(CEAccess.getConcept_InventoryWeightBulk(), KnowledgeAmount.FrameDisplayed);
+                Pawn pawn = (Pawn)LSelPawn.GetValue(tab);
+
+                if(!CanShowStat(pawn, CE_StatDefOf.CarryBulk))
+                    return position;
+
+                var comp = pawn.getCompInventory();
+                if (comp == null)
+                    return position;
+
+                bool useBulk = !CE_StatDefOf.CarryBulk.alwaysHide && CanShowStat(pawn, CE_StatDefOf.CarryBulk);
+                bool useWeight = !CE_StatDefOf.CarryWeight.alwaysHide && CanShowStat(pawn, CE_StatDefOf.CarryWeight);
+
+                if (!useBulk && !useWeight)
+                    return position;
+
                 position.height -= 55f;
                 Rect rect = new Rect(15f, position.yMax + 7.5f, position.width - 10f, 20f);
                 Rect rect2 = new Rect(15f, rect.yMax + 7.5f, position.width - 10f, 20f);
-
-                float curB;
-                float capB;
-                CEAccess.getCurrentAndCapacityBulk(comp, out curB, out capB);
-                CEAccess.drawBar(rect2, curB, capB, "CE_Bulk".Translate(), pawn.getBulkTip());
-                float curW;
-                float capW;
-                CEAccess.getCurrentAndCapacityWeight(comp, out curW, out capW);
-                CEAccess.drawBar(rect, curW, capW, "CE_Weight".Translate(), pawn.getWeightTip());
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
-                string str = CEAccess.formatBulk(curB);
-                string str2 = CEAccess.formatBulk(capB);
-                Widgets.Label(rect2, str + "/" + str2);
-                string str3 = curW.ToString("0.#");
-                string str4 = CEAccess.formatWeight(capW);
-                Widgets.Label(rect, str3 + "/" + str4);
+
+                if (useBulk)
+                {
+                    PlayerKnowledgeDatabase.KnowledgeDemonstrated(CEAccess.getConcept_InventoryWeightBulk(), KnowledgeAmount.FrameDisplayed);
+                    float curB;
+                    float capB;
+                    CEAccess.getCurrentAndCapacityBulk(comp, out curB, out capB);
+                    CEAccess.drawBar(rect2, curB, capB, "CE_Bulk".Translate(), pawn.getBulkTip());
+                    string str = CEAccess.formatBulk(curB);
+                    string str2 = CEAccess.formatBulk(capB);
+                    Widgets.Label(rect2, str + "/" + str2);
+                }
+
+                if (useWeight)
+                {
+                    float curW;
+                    float capW;
+                    CEAccess.getCurrentAndCapacityWeight(comp, out curW, out capW);
+                    CEAccess.drawBar(rect, curW, capW, "CE_Weight".Translate(), pawn.getWeightTip());
+                    string str3 = curW.ToString("0.#");
+                    string str4 = CEAccess.formatWeight(capW);
+                    Widgets.Label(rect, str3 + "/" + str4);
+                }
+
                 Text.Anchor = TextAnchor.UpperLeft;
                 return position;
             }

@@ -132,11 +132,11 @@ namespace Sandy_Detailed_RPG_Inventory
                 cachedPawn = selPawnForGear;
             }
 
-            if (!CanShowSlots())
-            {
-                base.FillTab();
-                return;
-            }
+            //if (!CanShowSlots())
+            //{
+            //    base.FillTab();
+            //    return;
+            //}
 
             Rect rect = new Rect(0f, TabU.stdPadding, size.x, size.y - TabU.stdPadding);
             float num = 0f;
@@ -144,6 +144,22 @@ namespace Sandy_Detailed_RPG_Inventory
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
             //
+            if (!CanShowSlots())
+            {
+                rect = rect.ContractedBy(TabU.stdPadding / 2);
+                var tempPos = new Rect(rect.x, rect.y, rect.width, rect.height);
+                var tempOutRec = new Rect(0f, 0f, rect.width, rect.height);
+                var tempViewRec = new Rect(0f, 0f, rect.width - TabU.stdScrollbarWidth, scrollViewHeight);
+                GUI.BeginGroup(tempPos);
+                Widgets.BeginScrollView(tempOutRec, ref scrollPosition, tempViewRec, true);
+                DrawViewList(ref num, tempViewRec);
+                Widgets.EndScrollView();
+                GUI.EndGroup();
+                GUI.color = Color.white;
+                Text.Anchor = TextAnchor.UpperLeft;
+                return;
+            }
+
             string tmptext = "Sandy_ViewList".Translate(); //autofitting text in case of translations
             Vector2 tmpvector = Text.CalcSize(tmptext);
             Rect rect0 = new Rect(TabU.stdPadding / 2f, 2f, tmpvector.x + TabU.stdThingIconSize, TabU.stdThingRowHeight);

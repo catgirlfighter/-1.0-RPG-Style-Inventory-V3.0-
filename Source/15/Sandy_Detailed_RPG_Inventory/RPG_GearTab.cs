@@ -153,6 +153,9 @@ namespace Sandy_Detailed_RPG_Inventory
                 GUI.BeginGroup(tempPos);
                 Widgets.BeginScrollView(tempOutRec, ref scrollPosition, tempViewRec, true);
                 DrawViewList(ref num, tempViewRec);
+                //inventory
+                if (ShouldShowInventory(cachedPawn))
+                    DrawInventory(cachedPawn.inventory.innerContainer, "Inventory", tempViewRec, ref num, true);
                 Widgets.EndScrollView();
                 GUI.EndGroup();
                 GUI.color = Color.white;

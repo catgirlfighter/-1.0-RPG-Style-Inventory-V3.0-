@@ -1,3 +1,6 @@
+other
+- fixed inventory of pack animals not showing.
+
 4.1.revamp.6.5
 - all the CE compatibility fixes again, damn you CE community:
 - changed how the tab is shown to non-humanlikes so it uses "show list" mode instead of reverting to vanilla, because vanilla tab doesn't get CE patches applied otherwise;

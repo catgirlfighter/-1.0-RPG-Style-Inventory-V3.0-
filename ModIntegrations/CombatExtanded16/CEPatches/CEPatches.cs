@@ -1,0 +1,742 @@
+﻿using System;
+using HarmonyLib;
+using Verse;
+using RimWorld;
+using System.Reflection;
+using System.Linq;
+using UnityEngine;
+using System.Collections.Generic;
+using Sandy_Detailed_RPG_Inventory;
+using Sandy_Detailed_RPG_Inventory.MODIntegrations;
+using Verse.Sound;
+using Verse.AI;
+using System.Reflection.Emit;
+using CombatExtended;
+
+namespace CEPatches
+{
+    [StaticConstructorOnStartup]
+    static class RPG_CEPatch
+    {
+        public static readonly Texture2D texBulk = null;
+        static RPG_CEPatch()
+        {
+            texBulk = ContentFinder<Texture2D>.Get("UI/Icons/Sandy_Bulk_Icon", true);
+            if (ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageIdNonUnique == "ceteam.combatextended") == null
+                || ModsConfig.ActiveModsInLoadOrder.FirstOrDefault(x => x.PackageIdNonUnique == "sandy.rpgstyleinventory.avilmask.revamped") == null)
+                return;
+            //
+            //shenanigans to hide HarmonyLib from StartupConstructor
+            //so game doesn't freak out if Harmony doesn't exist
+            RPG_CEPatches.DoPatch();
+        }
+
+        static class RPG_CEPatches
+        {
+            static MethodInfo LDrawStats1;
+            static MethodInfo LDrawStats;
+            //static FieldInfo LstatIconSize;
+            //static FieldInfo LstdThingIconSize;
+            //static FieldInfo LstdThingRowHeight;
+            //static FieldInfo LstdLineHeight;
+            static MethodInfo LTryDrawComfyTemperatureRange1;
+            static MethodInfo LTryDrawComfyTemperatureRange;
+            static PropertyInfo LSelPawnForGear;
+            static PropertyInfo LSelPawn;
+            static PropertyInfo LCanControl;
+            static MethodInfo LInterfaceDrop;
+            static MethodInfo LInterfaceIngest;
+            //static MethodInfo LDrawThingRow1;
+            static MethodInfo LPopupMenu;
+            static MethodInfo LDrawThingRow;
+            static MethodInfo LShouldShowInventory;
+            static MethodInfo LShouldShowOverallArmor;
+            static MethodInfo LThingDetailedTip;
+            static MethodInfo LDrawInventory;
+            static MethodInfo LFillTab;
+            static FieldInfo LviewList;
+            //
+            static Type Utility_HoldTracker;
+            static MethodInfo LHoldTrackerIsHeld;
+            static MethodInfo LHoldTrackerForget;
+
+            static Type CEUtility;
+            static MethodInfo PartialStat;
+
+            static public void DoPatch()
+            {          
+
+                Type RPGTab = typeof(Sandy_Detailed_RPG_GearTab);
+                //that's why private stuff sucks ass
+                LDrawStats1 = AccessTools.Method(RPGTab, "DrawStats1");
+                LDrawStats = AccessTools.Method(RPGTab, "DrawStats");
+                //LstatIconSize = AccessTools.Field(RPGTab, "statIconSize");
+                //LstdThingIconSize = AccessTools.Field(RPGTab, "stdThingIconSize"); ;
+                //LstdThingRowHeight = AccessTools.Field(RPGTab, "stdThingRowHeight");
+                //LstdLineHeight = AccessTools.Field(RPGTab, "stdLineHeight");
+                LTryDrawComfyTemperatureRange1 = AccessTools.Method(RPGTab, "TryDrawComfyTemperatureRange1");
+                LTryDrawComfyTemperatureRange = AccessTools.Method(RPGTab, "TryDrawComfyTemperatureRange");
+                LSelPawnForGear = AccessTools.Property(RPGTab, "SelPawnForGear");
+                LSelPawn = AccessTools.Property(typeof(ITab), "SelPawn");
+                LCanControl = AccessTools.Property(RPGTab, "CanControl");
+                LInterfaceDrop = AccessTools.Method(RPGTab, "InterfaceDrop");
+                LInterfaceIngest = AccessTools.Method(RPGTab, "InterfaceIngest");
+                //LDrawThingRow1 = AccessTools.Method(RPGTab, "DrawThingRow1");
+                LPopupMenu = AccessTools.Method(RPGTab, "PopupMenu");
+                LDrawThingRow = AccessTools.Method(RPGTab, "DrawThingRow");
+                LShouldShowInventory = AccessTools.Method(RPGTab, "ShouldShowInventory");
+                LShouldShowOverallArmor = AccessTools.Method(RPGTab, "ShouldShowOverallArmor");
+                LThingDetailedTip = AccessTools.Method(RPGTab, "ThingDetailedTip");
+                LDrawInventory = AccessTools.Method(RPGTab, "DrawInventory");
+                LFillTab = AccessTools.Method(RPGTab, "FillTab");
+                LviewList = AccessTools.Field(RPGTab, "viewList");
+                //
+                Utility_HoldTracker = AccessTools.TypeByName("Utility_HoldTracker");
+                LHoldTrackerIsHeld = AccessTools.Method(Utility_HoldTracker, "HoldTrackerIsHeld");
+                LHoldTrackerForget = AccessTools.Method(Utility_HoldTracker, "HoldTrackerForget");
+
+                CEUtility = AccessTools.TypeByName("CE_Utility");
+                if (CEUtility == null) PartialStat = null;
+                else PartialStat = AccessTools.Method(CEUtility, "PartialStat", new Type[]{typeof(Apparel), typeof(StatDef), typeof(BodyPartRecord)});
+                //
+                var harmonyInstance = new Harmony("net.avilmask.rimworld.mod.RPG_CEPatches");
+                //
+                HarmonyMethod hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.DrawStats1Prefix));
+                harmonyInstance.Patch(LDrawStats1, hm, null);
+                //
+                //hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.DrawThingRow1Postfix));
+                //harmonyInstance.Patch(LDrawThingRow1, null, hm);
+                //
+                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.PopupMenuPrefix));
+                harmonyInstance.Patch(LPopupMenu, hm, null);
+                //
+                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.ThingDetailedTipPrefix));
+                harmonyInstance.Patch(LThingDetailedTip, hm);
+                //
+                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.DrawThingRowPostfix));
+                harmonyInstance.Patch(LDrawThingRow, null, hm);
+                //
+                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.InterfaceDropPrefix));
+                harmonyInstance.Patch(LInterfaceDrop, hm);
+                //
+                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.DrawStatsPrefix));
+                harmonyInstance.Patch(LDrawStats, hm);
+                //
+                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.DrawInventoryPrefix));
+                harmonyInstance.Patch(LDrawInventory, hm);
+                
+                hm = new HarmonyMethod(typeof(RPG_CEPatches), nameof(RPG_CEPatches.FillTabTranspiler));
+                harmonyInstance.Patch(LFillTab, null, null, hm);
+            }
+
+            static bool DrawStats1Prefix(object __instance, ref float top, float left)
+            {
+                TryDrawMassInfo1(__instance, ref top, left, TabU.statPanelWidth);
+                object[] args = new object[] { top, left, TabU.statPanelWidth };
+                LTryDrawComfyTemperatureRange1.Invoke(__instance, args);
+                top = (float)args[0];
+                //
+                Pawn pawn = (Pawn)LSelPawnForGear.GetValue(__instance);
+                bool flag = (bool)LShouldShowOverallArmor.Invoke(__instance, new object[] { pawn });
+                if (flag)
+                {
+                    TryDrawOverallArmor1(__instance, ref top, left, (float)args[2], StatDefOf.ArmorRating_Sharp, "ArmorSharp".Translate(),
+                        "CE_mmRHA".Translate(), Sandy_Utility.texArmorSharp);
+                    TryDrawOverallArmor1(__instance, ref top, left, (float)args[2], StatDefOf.ArmorRating_Blunt, "ArmorBlunt".Translate(),
+                        "CE_MPa".Translate(), Sandy_Utility.texArmorBlunt);
+                    TryDrawOverallArmor1(__instance, ref top, left, (float)args[2], StatDefOf.ArmorRating_Heat, "ArmorHeat".Translate(),
+                        "%", Sandy_Utility.texArmorHeat);
+                }
+                //
+                MODIntegration.DrawStats1((Sandy_Detailed_RPG_GearTab)__instance, ref top, left, flag);
+                return false;
+            }
+
+            static bool PopupMenuPrefix(object __instance, ref List<FloatMenuOption> __result, Pawn pawn, Thing thing, bool inventory)
+            {
+                __result = DropDownThingMenu(__instance, thing, inventory);
+                return false;
+            }
+
+            static bool ThingDetailedTipPrefix(ref string __result, Thing thing, bool inventory)
+            {
+                __result = thing.DescriptionDetailed;
+
+                if (inventory)
+                {
+                    __result = string.Concat(new object[] { __result, "\n", thing.getBulkTip() });
+                }
+                else
+                {
+                    __result = string.Concat(new object[] { __result, "\n", thing.getWeightAndBulkTip() });
+                }
+
+                if (thing.def.useHitPoints)
+                {
+                    __result = string.Concat(new object[]
+                    {
+                        __result,
+                        "\n",
+                        thing.HitPoints,
+                        " / ",
+                        thing.MaxHitPoints
+                    });
+                }
+                return false;
+            }
+
+            static void DrawThingRowPostfix(object __instance, ref float y, float width, Thing thing)
+            {
+                Rect rect = new Rect(0, y - TabU.stdThingRowHeight, width, TabU.stdThingRowHeight);
+                bool flag = Widgets.ButtonInvisible(rect, true) && Event.current.button == 1;
+                if (!flag) return;
+                FloatMenu window = new FloatMenu(DropDownThingMenu(__instance, thing, false), thing.LabelCap, false);
+                Find.WindowStack.Add(window);
+            }
+
+            static void InterfaceDropPrefix(object __instance, Thing t)
+            {
+                Pawn pawn = (Pawn)LSelPawnForGear.GetValue(__instance);
+                bool flag = (bool)LHoldTrackerIsHeld.Invoke(null, new object[] { pawn, t });
+                if (flag)
+                {
+                    LHoldTrackerForget.Invoke(null, new object[] { pawn, t });
+                }
+            }
+
+            static bool DrawStatsPrefix(object __instance, ref float top, Rect rect)
+            {
+                object[] args = new object[] { top, rect.width };
+                LTryDrawComfyTemperatureRange.Invoke(__instance, args);
+                top = (float)args[0];
+                Widgets.ListSeparator(ref top, rect.width, "OverallArmor".Translate());
+                Pawn pawn = (Pawn)LSelPawnForGear.GetValue(__instance);
+                bool showArmor = (bool)LShouldShowOverallArmor.Invoke(__instance, new object[] { pawn });
+                if (showArmor)
+                {
+                    TryDrawOverallArmor(__instance, ref top, rect.width, StatDefOf.ArmorRating_Blunt, "ArmorBlunt".Translate(), " " + "CE_MPa".Translate());
+                    TryDrawOverallArmor(__instance, ref top, rect.width, StatDefOf.ArmorRating_Sharp, "ArmorSharp".Translate(), "CE_mmRHA".Translate());
+                    TryDrawOverallArmor(__instance, ref top, rect.width, StatDefOf.ArmorRating_Heat, "ArmorHeat".Translate(), "%");
+                }
+
+                MODIntegration.DrawStats((Sandy_Detailed_RPG_GearTab)__instance, ref top, rect, showArmor);
+                return false;
+            }
+
+            static void DrawInventoryPrefix(object __instance, ref Rect viewRect, ref float num, bool inventory = false)
+            {
+                if (!inventory) return;
+                //  
+                Pawn pawn = (Pawn)LSelPawnForGear.GetValue(__instance);
+                bool flag;
+                var loadout = pawn.getLoadout();
+                if (pawn.IsColonist && (loadout == null || CEAccess.loadoutIsEmpty(loadout)))
+                {
+                    if (!pawn.inventory.innerContainer.Any<Thing>())
+                    {
+                        Pawn_EquipmentTracker equipment = pawn.equipment;
+                        flag = (((equipment != null) ? equipment.Primary : null) != null);
+                    }
+                    else
+                    {
+                        flag = true;
+                    }
+                }
+                else
+                {
+                    flag = false;
+                }
+                //
+                if (!flag) return;
+
+                //num += 3f;
+                Rect rect = new Rect(viewRect.width / 2f, num, viewRect.width / 2f, 26f);
+                Color color = GUI.color;
+                TextAnchor anchor = Text.Anchor;
+                GUI.color = Color.cyan;
+                if (Mouse.IsOver(rect))
+                {
+                    GUI.color = Color.white;
+                }
+                Text.Anchor = TextAnchor.UpperRight;
+                Widgets.Label(rect, "CE_MakeLoadout".Translate());
+                if (Widgets.ButtonInvisible(rect.ContractedBy(2f), true))
+                {
+                    loadout = pawn.generateLoadoutFromPawn();
+                    CEAccess.addLoadoutToManager(loadout);
+                    pawn.setLoadout(loadout);
+                    Find.WindowStack.Add(CEAccess.dialogManageLoadouts(pawn));
+                }
+                Text.Anchor = anchor;
+                GUI.color = color;
+
+                num += 3f;
+            }
+
+            static IEnumerable<object> FillTabTranspiler(IEnumerable<object> instrs)
+            {
+                MethodInfo LBeginGroup = AccessTools.Method(typeof(GUI), nameof(GUI.BeginGroup), new Type[] { typeof(Rect) });
+                MethodInfo LDrawBars = AccessTools.Method(typeof(RPG_CEPatches), nameof(FillTab_DrawBars));
+                CodeInstruction prev = null;
+                foreach (var i in (instrs))
+                {
+                    if ((i as CodeInstruction).opcode == OpCodes.Call && (i as CodeInstruction).operand == (object)LBeginGroup)
+                    {
+                        yield return new CodeInstruction(OpCodes.Ldarg_0);
+                        yield return new CodeInstruction(OpCodes.Call, LDrawBars);
+                        yield return new CodeInstruction(OpCodes.Stloc_S, prev.operand);
+                        yield return new CodeInstruction(OpCodes.Ldloc_S, prev.operand);
+                        //yield return new CodeInstruction(OpCodes.Ldloc_1);
+                    }
+                    yield return i;
+                    prev = i as CodeInstruction;
+                }
+            }
+
+            static string FormatArmorValue(float value, string unit)
+            {
+                bool flag = unit.Equals("%");
+                if (flag)
+                {
+                    value *= 100f;
+                }
+                return value.ToStringByStyle(flag ? ToStringStyle.FloatMaxOne : ToStringStyle.FloatMaxTwo, ToStringNumberSense.Absolute) + unit;
+            }
+
+            static float AgregateApparelStat(IEnumerable<Apparel> apparels, StatDef stat)
+            {
+                if (apparels.EnumerableNullOrEmpty())
+                    return 0;
+                //
+                float num = 0;
+                foreach (Apparel apparel2 in apparels)
+                {
+                    num += apparel2.GetStatValue(stat, true) * apparel2.def.apparel.HumanBodyCoverage;
+                }
+                return num;
+            }
+
+            static void TryDrawOverallArmor1(object tab, ref float top, float left, float width, StatDef stat, string label, string unit, Texture image)
+            {
+                Pawn pawn = (Pawn)LSelPawnForGear.GetValue(tab);
+                //
+                float statValue = pawn.GetStatValue(stat, true);
+                float num = statValue;
+                Pawn_ApparelTracker apparel = pawn.apparel;
+                List<Apparel> list = pawn?.apparel.WornApparel;
+                num += AgregateApparelStat(list, stat);
+                //
+                if (num > 0.0001f)
+                {
+                    //float statIconSize = TabU.statIconSize;
+                    //float stdThingIconSize = TabU.stdThingIconSize;
+                    //float stdThingRowHeight = TabU.stdThingRowHeight;
+                    string text = AgregateApparelBreakDown(pawn.RaceProps.body.AllParts, list, stat, statValue, unit);
+                    Rect rect = new Rect(left, top, width, TabU.statIconSize);
+                    Sandy_Utility.LabelWithIcon(rect, image, TabU.statIconSize, TabU.statIconSize, label, FormatArmorValue(num, unit), text);
+                    top += TabU.stdThingRowHeight;
+                }
+            }
+
+            static string AgregateApparelBreakDown(IEnumerable<BodyPartRecord> bodyParts, IEnumerable<Apparel> apparels, StatDef stat, float natValue, string unit)
+            {
+                string text = "";
+                foreach (BodyPartRecord bodyPartRecord in bodyParts)
+                {
+                    float num = bodyPartRecord.isNaturalArmor() ? natValue : 0f;
+                    if (bodyPartRecord.depth == BodyPartDepth.Outside
+                        && (bodyPartRecord.coverage >= 0.1 || bodyPartRecord.def == BodyPartDefOf.Eye/* || bodyPartRecord.def == BodyPartDefOf.Neck*/))
+                    {
+                        text = text + bodyPartRecord.LabelCap + ": ";
+                        if (!apparels.EnumerableNullOrEmpty())
+                            if(PartialStat == null)
+                                foreach (Apparel apparel in apparels)
+                                {
+                                    if (apparel.def.apparel.CoversBodyPart(bodyPartRecord))
+                                    {
+                                        num += apparel.GetStatValue(stat, true);
+                                    }
+                                }
+                            else
+                                foreach (Apparel apparel in apparels)
+                                {
+                                    if (apparel.def.apparel.CoversBodyPart(bodyPartRecord))
+                                    {
+                                        num += (float)PartialStat.Invoke(null, new object[] { apparel, stat, bodyPartRecord });
+                                    }
+                                }
+                        text = text + FormatArmorValue(num, unit) + "\n";
+                    }
+                }
+                return text;
+            }
+
+            static List<FloatMenuOption> DropDownThingMenu(object tab, Thing thing, bool inventory)
+            {
+                Pawn SelPawnForGear = (Pawn)LSelPawnForGear.GetValue(tab);
+                Pawn SelPawn = (Pawn)LSelPawn.GetValue(tab);
+                bool canControl = (bool)LCanControl.GetValue(tab);
+                List<FloatMenuOption> list = new List<FloatMenuOption>();
+                list.Add(new FloatMenuOption("ThingInfo".Translate(), delegate ()
+                {
+                    Find.WindowStack.Add(new Dialog_InfoCard(thing));
+                }, MenuOptionPriority.Default, null, null, 0f, null, null));
+                //bool canControl = this.CanControl;
+                if (canControl)
+                {
+                    var app = thing as Apparel;
+                    
+                    bool eqLocked = SelPawnForGear.IsQuestLodger() && (inventory || !EquipmentUtility.QuestLodgerCanUnequip(thing, SelPawnForGear));
+                    bool apLocked = app != null && SelPawnForGear.apparel?.IsLocked(app) == true;
+
+                    if (!apLocked && !eqLocked && SelPawnForGear.apparel?.Contains(app) == true && SelPawnForGear.outfits?.forcedHandler != null)
+                        if (SelPawnForGear.outfits.forcedHandler.IsForced(app) == true)
+                        {
+                            list.Add(new FloatMenuOption($"{"ForcedApparel".Translate()}: {"ClearForcedApparel".Translate()}", delegate ()
+                            {
+                                SelPawnForGear.outfits.forcedHandler.ForcedApparel.Remove(app);
+                            }, Sandy_Utility.texForced, Color.white));
+                        }
+                        else
+                        {
+                            list.Add(new FloatMenuOption("ForcedApparel".Translate(), delegate ()
+                            {
+                                SelPawnForGear.outfits.forcedHandler.ForcedApparel.Add(app);
+                            }, Sandy_Utility.texForced, Color.white));
+                        }
+
+                    ThingWithComps eq = thing as ThingWithComps;
+                    bool flag10 = eq != null && eq.TryGetComp<CompEquippable>() != null;
+                    if (flag10)
+                    {
+                        object comp = SelPawnForGear.getCompInventory();
+                        CompBiocodable compBiocodable = eq.TryGetComp<CompBiocodable>();
+                        bool flag11 = comp != null;
+                        if (flag11)
+                        {
+                            string value = GenLabel.ThingLabel(eq.def, eq.Stuff, 1);
+                            bool flag12 = compBiocodable != null && compBiocodable.Biocoded && compBiocodable.CodedPawn != SelPawnForGear;
+                            FloatMenuOption item;
+                            if (flag12)
+                            {
+                                item = new FloatMenuOption("CannotEquip".Translate(value) + ": " + "BiocodedCodedForSomeoneElse".Translate(), null, MenuOptionPriority.Default, null, null, 0f, null, null);
+                            }
+                            else
+                            {
+                                bool flag13 = SelPawnForGear.IsQuestLodger() && !EquipmentUtility.QuestLodgerCanEquip(eq, SelPawnForGear);
+                                if (flag13)
+                                {
+                                    TaggedString t = SelPawnForGear.equipment.AllEquipmentListForReading.Contains(eq) ? "CE_CannotPutAway".Translate(value) : "CannotEquip".Translate(value);
+                                    item = new FloatMenuOption(t + ": " + "CE_CannotChangeEquipment".Translate(), null, MenuOptionPriority.Default, null, null, 0f, null, null);
+                                }
+                                else
+                                {
+                                    bool flag14 = SelPawnForGear.equipment.AllEquipmentListForReading.Contains(eq) && SelPawnForGear.inventory != null;
+                                    if (flag14)
+                                    {
+                                        item = new FloatMenuOption("CE_PutAway".Translate(value), delegate ()
+                                        {
+                                            SelPawnForGear.equipment.TryTransferEquipmentToContainer(SelPawnForGear.equipment.Primary, SelPawnForGear.inventory.innerContainer);
+                                        }, MenuOptionPriority.Default, null, null, 0f, null, null);
+                                    }
+                                    else
+                                    {
+                                        bool flag15 = !SelPawnForGear.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation);
+                                        if (flag15)
+                                        {
+                                            item = new FloatMenuOption("CannotEquip".Translate(value), null, MenuOptionPriority.Default, null, null, 0f, null, null);
+                                        }
+                                        else
+                                        {
+                                            string text4 = "Equip".Translate(value);
+                                            bool flag16 = eq.def.IsRangedWeapon && SelPawnForGear.story != null && SelPawnForGear.story.traits.HasTrait(TraitDefOf.Brawler);
+                                            if (flag16)
+                                            {
+                                                text4 = text4 + " " + "EquipWarningBrawler".Translate();
+                                            }
+                                            item = new FloatMenuOption(text4, (SelPawnForGear.story != null && SelPawnForGear.WorkTagIsDisabled(WorkTags.Violent)) ? null : new Action(delegate ()
+                                            {
+                                                CEAccess.trySwitchToWeapon(comp, eq);
+                                            }), MenuOptionPriority.Default, null, null, 0f, null, null);
+                                        }
+                                    }
+                                }
+                            }
+                            list.Add(item);
+                        }
+                    }
+                    //Pawn selPawnForGear = SelPawnForGear;   //??
+                    List<Apparel> list2;
+                    if (SelPawnForGear == null)
+                    {
+                        list2 = null;
+                    }
+                    else
+                    {
+                        Pawn_ApparelTracker apparel2 = SelPawnForGear.apparel;
+                        list2 = ((apparel2 != null) ? apparel2.WornApparel : null);
+                    }
+                    List<Apparel> list3 = list2;
+                    using (List<Apparel>.Enumerator enumerator = list3.GetEnumerator())
+                    {
+                        while (enumerator.MoveNext())
+                        {
+                            Apparel apparel = enumerator.Current;
+                            CompApparelReloadable compReloadable = apparel.TryGetComp<CompApparelReloadable>();
+                            bool flag17 = compReloadable != null && compReloadable.AmmoDef == thing.def && compReloadable.NeedsReload(true);
+                            if (flag17)
+                            {
+                                bool flag18 = !SelPawnForGear.Drafted;
+                                if (flag18)
+                                {
+                                    FloatMenuOption item2 = new FloatMenuOption("CE_ReloadApparel".Translate(apparel.Label, thing.Label), delegate ()
+                                    {
+                                        SelPawnForGear.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Reload, apparel, thing), JobTag.Misc);
+                                    }, MenuOptionPriority.Default, null, null, 0f, null, null);
+                                    list.Add(item2);
+                                }
+                            }
+                        }
+                    }
+                    bool flag19 = canControl && thing.IngestibleNow && SelPawn.RaceProps.CanEverEat(thing);
+                    if (flag19)
+                    {
+                        Action action = delegate ()
+                        {
+                            SoundDefOf.Tick_High.PlayOneShotOnCamera(null);
+                            LInterfaceIngest.Invoke(tab, new object[] { thing });
+                        };
+                        string text5 = thing.def.ingestible.ingestCommandString.NullOrEmpty() ? (string)"ConsumeThing".Translate(thing.LabelShort, thing) : string.Format(thing.def.ingestible.ingestCommandString, thing.LabelShort);
+                        bool flag20 = SelPawnForGear.IsTeetotaler() && thing.def.IsNonMedicalDrug;
+                        if (flag20)
+                        {
+                            List<FloatMenuOption> list4 = list;
+                            string str = text5;
+                            string str2 = ": ";
+                            TraitDegreeData traitDegreeData = (from x in TraitDefOf.DrugDesire.degreeDatas
+                                                               where x.degree == -1
+                                                               select x).First<TraitDegreeData>();
+                            list4.Add(new FloatMenuOption(str + str2 + ((traitDegreeData != null) ? traitDegreeData.label : null), null, MenuOptionPriority.Default, null, null, 0f, null, null));
+                        }
+                        else
+                        {
+                            list.Add(new FloatMenuOption(text5, action, MenuOptionPriority.Default, null, null, 0f, null, null));
+                        }
+                    }
+                    bool flag21 = SelPawnForGear.isItemQuestLocked(eq);
+                    if (flag21)
+                    {
+                        list.Add(new FloatMenuOption("CE_CannotDropThing".Translate() + ": " + "DropThingLocked".Translate(), null, MenuOptionPriority.Default, null, null, 0f, null, null));
+                        list.Add(new FloatMenuOption("CE_CannotDropThingHaul".Translate() + ": " + "DropThingLocked".Translate(), null, MenuOptionPriority.Default, null, null, 0f, null, null));
+                    }
+                    else
+                    {
+                        list.Add(new FloatMenuOption("DropThing".Translate(), delegate ()
+                        {
+                            SoundDefOf.Tick_High.PlayOneShotOnCamera(null);
+                            LInterfaceDrop.Invoke(tab, new object[] { thing });
+                        }, MenuOptionPriority.Default, null, null, 0f, null, null));
+                        list.Add(new FloatMenuOption("CE_DropThingHaul".Translate(), delegate ()
+                        {
+                            SoundDefOf.Tick_High.PlayOneShotOnCamera(null);
+                            InterfaceDropHaul(SelPawnForGear, thing, SelPawn);
+                        }, MenuOptionPriority.Default, null, null, 0f, null, null));
+                    }
+                    bool flag22 = canControl && (bool)LHoldTrackerIsHeld.Invoke(null, new object[] { SelPawnForGear, thing }); //SelPawnForGear.HoldTrackerIsHeld(thing);
+                    if (flag22)
+                    {
+                        Action action2 = delegate ()
+                        {
+                            SoundDefOf.Tick_High.PlayOneShotOnCamera(null);
+                            LHoldTrackerForget.Invoke(null, new object[] { SelPawnForGear, thing }); //SelPawnForGear.HoldTrackerForget(thing);
+                        };
+                        list.Add(new FloatMenuOption("CE_HoldTrackerForget".Translate(), action2, MenuOptionPriority.Default, null, null, 0f, null, null));
+                    }
+                }
+
+                return list;
+                //FloatMenu window = new FloatMenu(list, thing.LabelCap, false);
+                //Find.WindowStack.Add(window);
+            }
+
+            static void InterfaceDropHaul(Pawn pawn, Thing thing, Pawn selPawn)
+            {
+                bool flag = (bool)LHoldTrackerIsHeld.Invoke(null, new object[] { pawn, thing });
+                if (flag)
+                {
+                    LHoldTrackerForget.Invoke(null, new object[] { pawn, thing });
+                }
+                ThingWithComps thingWithComps = thing as ThingWithComps;
+                Apparel apparel = thing as Apparel;
+                bool flag2 = apparel != null && pawn.apparel != null && pawn.apparel.WornApparel.Contains(apparel);
+                if (flag2)
+                {
+                    Job job = JobMaker.MakeJob(JobDefOf.RemoveApparel, apparel);
+                    job.haulDroppedApparel = true;
+                    pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                }
+                else
+                {
+                    bool flag3 = thingWithComps != null && pawn.equipment != null && pawn.equipment.AllEquipmentListForReading.Contains(thingWithComps);
+                    if (flag3)
+                    {
+                        pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.DropEquipment, thingWithComps), JobTag.Misc);
+                    }
+                    else
+                    {
+                        bool flag4 = !thing.def.destroyOnDrop;
+                        if (flag4)
+                        {
+                            Thing t;
+                            selPawn.inventory.innerContainer.TryDrop(thing, selPawn.Position, selPawn.Map, ThingPlaceMode.Near, out t, null, null);
+                        }
+                    }
+                }
+            }
+
+            static void TryDrawMassInfo1(object tab, ref float top, float left, float width)
+            {
+                Pawn pawn = (Pawn)LSelPawnForGear.GetValue(tab);
+                if (pawn.Dead || !(bool)LShouldShowInventory.Invoke(tab, new object[] { pawn }))
+                    return;
+                //
+
+                var comp = pawn.getCompInventory();
+                if (comp == null)
+                    return;
+                //
+                float val1;
+                float val2;
+                float statIconSize = TabU.statIconSize;
+                float stdThingIconSize = TabU.stdThingIconSize;
+                float stdThingRowHeight = TabU.stdThingRowHeight;
+                Rect rect1;
+                Rect rect2;
+                string str;
+                string str2;
+                //weight
+                if (!CE_StatDefOf.CarryWeight.alwaysHide && CanShowStat(pawn, CE_StatDefOf.CarryWeight))
+                {
+                    CEAccess.getCurrentAndCapacityWeight(comp, out val1, out val2);
+                    rect1 = new Rect(left, top, statIconSize, statIconSize);
+                    GUI.DrawTexture(rect1, Sandy_Utility.texMass);
+                    TooltipHandler.TipRegion(rect1, "CE_Weight".Translate());
+                    str = val1.ToString("0.#");
+                    str2 = CEAccess.formatWeight(val2);
+                    rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
+                    CEAccess.drawBar(rect2, val1, val2, "", pawn.getWeightTip());
+                    rect2.xMin += 4f;
+                    rect2.yMin += 2f;
+                    Widgets.Label(rect2, str + '/' + str2);
+                    top += stdThingRowHeight;
+                }
+                //bulk
+                if (!CE_StatDefOf.CarryBulk.alwaysHide && CanShowStat(pawn, CE_StatDefOf.CarryBulk))
+                {
+                    CEAccess.getCurrentAndCapacityBulk(comp, out val1, out val2);
+                    rect1 = new Rect(left, top, statIconSize, statIconSize);
+                    GUI.DrawTexture(rect1, texBulk);
+                    TooltipHandler.TipRegion(rect1, "CE_Bulk".Translate());
+                    str = CEAccess.formatBulk(val1);
+                    str2 = CEAccess.formatBulk(val2);
+                    rect2 = new Rect(left + stdThingIconSize, top + (stdThingRowHeight - statIconSize) / 2f, width - stdThingIconSize, statIconSize);
+                    CEAccess.drawBar(rect2, val1, val2, "", pawn.getBulkTip());
+                    rect2.xMin += 4f;
+                    rect2.yMin += 2f;
+                    Widgets.Label(rect2, str + '/' + str2);
+                    top += stdThingRowHeight;
+                }
+            }
+
+            static void TryDrawOverallArmor(object tab, ref float top, float width, StatDef stat, string label, string unit)
+            {
+                Pawn pawn = (Pawn)LSelPawnForGear.GetValue(tab);
+                //
+                float statValue = pawn.GetStatValue(stat, true);
+                float num = statValue;
+                Pawn_ApparelTracker apparel = pawn.apparel;
+                List<Apparel> list = pawn?.apparel.WornApparel;
+                num += AgregateApparelStat(list, stat);
+                //
+                if (num > 0.0001f)
+                {
+                    //float statIconSize = TabU.statIconSize;
+                    //float stdThingIconSize = TabU.stdThingIconSize;
+                    //float stdThingRowHeight = TabU.stdThingRowHeight;
+                    //
+                    string text = AgregateApparelBreakDown(pawn.RaceProps.body.AllParts, list, stat, statValue, unit);
+                    //
+                    Rect rect1 = new Rect(0f, top, width, TabU.stdThingRowHeight);
+                    Widgets.Label(rect1, label.Truncate(120f, null));
+
+                    rect1.xMin += 120f;
+                    Widgets.Label(rect1, FormatArmorValue(num, unit));
+                    TooltipHandler.TipRegion(rect1, text);
+                    top += TabU.stdLineHeight;
+                }
+            }
+
+            static private bool CanShowStat(Pawn pawn, StatDef statDef)
+            {
+                return pawn.def.race.Humanlike && statDef.showOnHumanlikes
+                    || pawn.def.race.Animal && statDef.showOnAnimals
+                    || pawn.def.race.IsAnomalyEntity && statDef.showOnEntities
+                    || statDef.showOnMechanoids;
+            }
+
+            static Rect FillTab_DrawBars(Rect position, object tab)
+            {
+                bool viewList = (bool)LviewList.GetValue(tab);
+                if (!viewList)
+                    return position;
+
+                Pawn pawn = (Pawn)LSelPawn.GetValue(tab);
+
+                if(!CanShowStat(pawn, CE_StatDefOf.CarryBulk))
+                    return position;
+
+                var comp = pawn.getCompInventory();
+                if (comp == null)
+                    return position;
+
+                bool useBulk = !CE_StatDefOf.CarryBulk.alwaysHide && CanShowStat(pawn, CE_StatDefOf.CarryBulk);
+                bool useWeight = !CE_StatDefOf.CarryWeight.alwaysHide && CanShowStat(pawn, CE_StatDefOf.CarryWeight);
+
+                if (!useBulk && !useWeight)
+                    return position;
+
+                position.height -= 55f;
+                Rect rect = new Rect(15f, position.yMax + 7.5f, position.width - 10f, 20f);
+                Rect rect2 = new Rect(15f, rect.yMax + 7.5f, position.width - 10f, 20f);
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.MiddleCenter;
+
+                if (useBulk)
+                {
+                    PlayerKnowledgeDatabase.KnowledgeDemonstrated(CEAccess.getConcept_InventoryWeightBulk(), KnowledgeAmount.FrameDisplayed);
+                    float curB;
+                    float capB;
+                    CEAccess.getCurrentAndCapacityBulk(comp, out curB, out capB);
+                    CEAccess.drawBar(rect2, curB, capB, "CE_Bulk".Translate(), pawn.getBulkTip());
+                    string str = CEAccess.formatBulk(curB);
+                    string str2 = CEAccess.formatBulk(capB);
+                    Widgets.Label(rect2, str + "/" + str2);
+                }
+
+                if (useWeight)
+                {
+                    float curW;
+                    float capW;
+                    CEAccess.getCurrentAndCapacityWeight(comp, out curW, out capW);
+                    CEAccess.drawBar(rect, curW, capW, "CE_Weight".Translate(), pawn.getWeightTip());
+                    string str3 = curW.ToString("0.#");
+                    string str4 = CEAccess.formatWeight(capW);
+                    Widgets.Label(rect, str3 + "/" + str4);
+                }
+
+                Text.Anchor = TextAnchor.UpperLeft;
+                return position;
+            }
+        }
+    }
+}

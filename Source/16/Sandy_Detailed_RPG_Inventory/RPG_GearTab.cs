@@ -400,7 +400,7 @@ namespace Sandy_Detailed_RPG_Inventory
                 {
                     Rect rect1 = new Rect(rect.x + 4f, rect.y + 4f, rect.width - 8f, rect.height - 8f);
                     GUI.color = thing.DrawColor.SaturationChanged(0f);
-                    Widgets.ThingIcon(rect1, thing.def, null, thing.StyleDef, thing.def.uiIconScale * 0.7f, Color.gray.SaturationChanged(0f).ToTransparent(0.5f));
+                    Widgets.ThingIcon(rect1, thing.def, null, thing.StyleDef, thing.def.uiIconScale * 0.7f, Color.gray.SaturationChanged(0f).ToTransparent(0.5f), null, 1f);
                 }
                 return;
             }
@@ -869,7 +869,8 @@ namespace Sandy_Detailed_RPG_Inventory
         protected void DrawInventory(IEnumerable<Thing> list, string title, Rect viewRect, ref float num, bool inventory = false)
         {
             Widgets.ListSeparator(ref num, viewRect.width, title.Translate());
-            foreach (var item in list) DrawThingRow(ref num, viewRect.width, item, inventory);
+            var copy = list.ToList();
+            foreach (var item in copy) DrawThingRow(ref num, viewRect.width, item, inventory);
         }
 
         protected virtual void DrawStats1(ref float top, float left)

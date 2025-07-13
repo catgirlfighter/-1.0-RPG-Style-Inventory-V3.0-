@@ -902,7 +902,8 @@ namespace Sandy_Detailed_RPG_Inventory
         protected void DrawInventory(IEnumerable<Thing> list, string title, Rect viewRect, ref float num, bool inventory = false)
         {
             Widgets.ListSeparator(ref num, viewRect.width, title.Translate());
-            foreach (var item in list) DrawThingRow(ref num, viewRect.width, item, inventory);
+            var itemList = list.ToList();
+            foreach (var item in itemList) DrawThingRow(ref num, viewRect.width, item, inventory);
         }
 
         protected virtual void DrawStats1(ref float top, float left)

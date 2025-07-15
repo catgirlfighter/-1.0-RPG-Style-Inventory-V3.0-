@@ -1,5 +1,6 @@
 4.1.revamp.7.1
 - fixed some rare error that would happen when a list of items changed at the same time as it's trying to be displayed.
+Thanks RunningBugs for contribution.
 
 4.1.revamp.7
 - 1.6. Can't vouch for CE comp patch.

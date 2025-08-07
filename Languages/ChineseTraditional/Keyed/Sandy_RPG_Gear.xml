@@ -1,14 +1,66 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <LanguageData>
-
+  <!-- EN: Mass carried -->
   <SandyMassCarried>當前負重</SandyMassCarried>
-  <SandyMassValue>{0} / {1} 公斤</SandyMassValue>
+  <!-- EN: {0} / {1} kg -->
+  <SandyMassValue>{0} / {1} kg</SandyMassValue>
+  <!-- EN: Show list -->
   <Sandy_ViewList>顯示列表</Sandy_ViewList>
-  <Sandy_Head>頭 Overhead</Sandy_Head>
-  <Sandy_TorsoMiddle>軀幹 Middle</Sandy_TorsoMiddle>
-  <Sandy_TorsoOnSkin>軀幹 OnSkin</Sandy_TorsoOnSkin>
-  <Sandy_TorsoShell>軀幹 Shell</Sandy_TorsoShell>
-  <Sandy_Belt>帶</Sandy_Belt>
-  <Sandy_Pants>腿 OnSkin</Sandy_Pants>
-
+  <!-- EN: Gear Tab - Width -->
+  <RPG_Inventory_Width>裝備頁面 - 寬度</RPG_Inventory_Width>
+  <!-- EN: Gear Tab - Height -->
+  <RPG_Inventory_Height>裝備頁面 - 高度</RPG_Inventory_Height>
+  <!-- EN: RPG Style Inventory -->
+  <RPG_Style_Inventory_Title>RPG式物品欄</RPG_Style_Inventory_Title>
+  <!-- EN: Magic Defense -->
+  <RPG_Style_Inventory_ArmorHarmony>魔抗</RPG_Style_Inventory_ArmorHarmony>
+  <!-- EN: Display ALL slots -->
+  <RPG_Display_All_Slots_Label>顯示所有插槽</RPG_Display_All_Slots_Label>
+  <!-- EN: Display all supported slots even if it's impossible to use them -->
+  <RPG_Display_All_Slots_Note>顯示所有支援的插槽(即使無法使用)</RPG_Display_All_Slots_Note> 
+  <!-- EN: Primary Weapon -->
+  <Primary_Weapon>主武器</Primary_Weapon>
+  <!-- EN: Off-hand Weapon -->
+  <Secondary_Weapon>副武器</Secondary_Weapon>
+  <!-- EN: Autofit Width (Closest) -->
+  <RPG_AutoFitWidth_Button_Label>自適應寬度 (最窄)</RPG_AutoFitWidth_Button_Label>
+  <!-- EN: Autofit Width (Tight) -->
+  <RPG_AutoFitWidth_Tight_Button_Label>自適應寬度 (窄)</RPG_AutoFitWidth_Tight_Button_Label>
+  <!-- EN: Autofit Width (Wide) -->
+  <RPG_AutoFitWidth_Wide_Button_Label>自適應寬度 (寬)</RPG_AutoFitWidth_Wide_Button_Label>
+  <!-- EN: Display comfortable temperature values on the same line -->
+  <RPG_Dispaly_Temp_On_The_Same_Line_Label>在同一行顯示舒適溫度</RPG_Dispaly_Temp_On_The_Same_Line_Label>
+  <RPG_Dispaly_Temp_On_The_Same_Line_Note></RPG_Dispaly_Temp_On_The_Same_Line_Note>
+  <!-- EN: Simple -->
+  <Sandy_SimplifiedView>簡潔模式</Sandy_SimplifiedView>
+  <!-- EN: Display equipment healthbar -->
+  <RPG_Display_Apparel_Healthbar_Label>顯示裝備耐久條</RPG_Display_Apparel_Healthbar_Label>
+  <!-- EN: Instead of health-background -->
+  <RPG_Display_Apparel_Healthbar_Note>代替健康度背景</RPG_Display_Apparel_Healthbar_Note>
+  <!-- EN: Changing {0} -->
+  <RPG_Colors_Changing>改變至 {0}</RPG_Colors_Changing>
+  <!-- EN: Apply -->
+  <RPG_Colors_Apply>應用</RPG_Colors_Apply>
+  <!-- EN: Red:  -->
+  <RPG_Colors_Red>紅: </RPG_Colors_Red>
+  <!-- EN: Green:  -->
+  <RPG_Colors_Green>綠: </RPG_Colors_Green>
+  <!-- EN: Blue:  -->
+  <RPG_Colors_Blue>藍: </RPG_Colors_Blue>
+  <!-- EN: Preview:  -->
+  <RPG_Colors_Preview>預覽: </RPG_Colors_Preview>
+  <!-- EN: Change -->
+  <RPG_Colors_Button_Label>變更</RPG_Colors_Button_Label>
+  <!-- EN: Use color coding -->
+  <RPG_Color_Codes_Label>開啟品質顏色設定</RPG_Color_Codes_Label>
+  <RPG_Color_Codes_Note></RPG_Color_Codes_Note>
+  <!-- EN: Display slot backgrounds -->
+  <RPG_Display_Background_Label>顯示插槽背景</RPG_Display_Background_Label>
+  <RPG_Display_Background_Note></RPG_Display_Background_Note>
+  <!-- EN: Display default solt backgrounds -->
+  <RPG_Display_Static_Slot_Background_Label>顯示預設插槽背景</RPG_Display_Static_Slot_Background_Label>
+  <RPG_Display_Static_Slot_Background_Note></RPG_Display_Static_Slot_Background_Note>
+  <!-- EN: Use thick borders -->
+  <RPG_Frame2_Label>使用粗邊框</RPG_Frame2_Label>
+  <RPG_Frame2_Note></RPG_Frame2_Note>
 </LanguageData>

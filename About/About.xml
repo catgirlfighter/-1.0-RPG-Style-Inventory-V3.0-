@@ -11,7 +11,7 @@
 		<li>1.6</li>
 	</supportedVersions>
 	<packageId>Sandy.RPGStyleInventory.avilmask.Revamped</packageId>
-	<description>RPG style representation of the pawn's Gear Tab. That's a revamped version by avilmask. Thanks RunningBugs for contribution.</description>
+	<description>RPG style representation of the pawn's Gear Tab. That's a revamped version by avilmask. Thanks RunningBugs, kkosos for contribution.</description>
 	<loadAfter>
 		<li>CETeam.CombatExtended</li>
 	</loadAfter>

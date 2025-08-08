@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using RimWorld;
+﻿using RimWorld;
 using RimWorld.Planet;
+using Sandy_Detailed_RPG_Inventory.MODIntegrations;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Net.NetworkInformation;
 using UnityEngine;
 using Verse;
 using Verse.AI;
 using Verse.Sound;
-using Sandy_Detailed_RPG_Inventory.MODIntegrations;
-using System.ComponentModel;
 
 namespace Sandy_Detailed_RPG_Inventory
 {
@@ -655,12 +656,25 @@ namespace Sandy_Detailed_RPG_Inventory
                 }
                 overall += allParts[i].coverageAbs * (1f - partOverall);
                 if (allParts[i].depth == BodyPartDepth.Outside
-                    && (allParts[i].coverage >= 0.1 || allParts[i].def == BodyPartDefOf.Eye/* || allParts[i].def == BodyPartDefOf.Neck*/))
+                    && (allParts[i].coverage >= 0.1 || allParts[i].def == BodyPartDefOf.Eye))
                     tip = string.Concat(new string[] { tip, allParts[i].LabelCap, " ", partTotal.ToStringPercent(), "\n" });
             }
             overall = Mathf.Clamp(overall * 2f, 0f, 2f);
             Rect rect = new Rect(left, top, width, TabU.statIconSize);
-            Sandy_Utility.LabelWithIcon(rect, image, TabU.statIconSize, TabU.statIconSize, label, overall.ToStringPercent(), tip);
+            string curLabel;
+            string labelTip;
+            if (label == "")
+            {
+                curLabel = stat.LabelCap;
+                labelTip = "\n\n" + stat.description;
+            }
+            else
+            {
+                curLabel = label;
+                labelTip = "";
+            }
+
+            Sandy_Utility.LabelWithIcon(rect, image, TabU.statIconSize, TabU.statIconSize, curLabel + labelTip, overall.ToStringPercent(), curLabel + "\n\n" + tip);
             top += TabU.stdThingRowHeight;
         }
 
@@ -687,16 +701,27 @@ namespace Sandy_Detailed_RPG_Inventory
             //
             float curwidth = Sandy_RPG_Settings.displayTempOnTheSameLine ? width / 2f : width;
             float statValue = cachedPawn.GetStatValue(StatDefOf.ComfyTemperatureMin, true);
-            Rect rect = new Rect(left, top, curwidth, TabU.statIconSize);
-            Sandy_Utility.LabelWithIcon(rect, Sandy_Utility.texMinTemp, TabU.statIconSize, TabU.statIconSize, StatDefOf.ComfyTemperatureMin.label, statValue.ToStringTemperature("F0"));
+            float curleft = left;
+            Rect rect = new Rect(curleft, top, curwidth, TabU.statIconSize);
+            Sandy_Utility.LabelWithIcon(rect, Sandy_Utility.texMinTemp, TabU.statIconSize, TabU.statIconSize, StatDefOf.ComfyTemperatureMin.LabelCap + "\n\n" + StatDefOf.ComfyTemperatureMin.description, statValue.ToStringTemperature("F0"));
             //
-            if (Sandy_RPG_Settings.displayTempOnTheSameLine) left += curwidth;
+            if (Sandy_RPG_Settings.displayTempOnTheSameLine) curleft += curwidth;
             else top += TabU.stdThingRowHeight;
             //
             statValue = cachedPawn.GetStatValue(StatDefOf.ComfyTemperatureMax, true);
-            rect = new Rect(left, top, curwidth, TabU.statIconSize);
-            Sandy_Utility.LabelWithIcon(rect, Sandy_Utility.texMaxTemp, TabU.statIconSize, TabU.statIconSize, StatDefOf.ComfyTemperatureMax.label, statValue.ToStringTemperature("F0"));
+            rect = new Rect(curleft, top, curwidth, TabU.statIconSize);
+            Sandy_Utility.LabelWithIcon(rect, Sandy_Utility.texMaxTemp, TabU.statIconSize, TabU.statIconSize, StatDefOf.ComfyTemperatureMax.LabelCap + "\n\n" + StatDefOf.ComfyTemperatureMax.description, statValue.ToStringTemperature("F0"));
             top += TabU.stdThingRowHeight;
+            curleft = left;
+            curwidth = width;
+
+            if (StatDefOf.VacuumResistance != null && StatDefOf.VacuumResistance.Worker.ShouldShowFor(StatRequest.For(cachedPawn)))
+            {
+                statValue = cachedPawn.GetStatValue(StatDefOf.VacuumResistance, true);
+                rect = new Rect(left, top, curwidth, TabU.statIconSize);
+                Sandy_Utility.LabelWithIcon(rect, Sandy_Utility.texVacuumResistance, TabU.statIconSize, TabU.statIconSize, StatDefOf.VacuumResistance.LabelCap + "\n\n" + StatDefOf.VacuumResistance.description, statValue.ToStringPercent("F0"));
+                top += TabU.stdThingRowHeight;
+            }
         }
 
         private void DrawThingRow(ref float y, float width, Thing thing, bool inventory = false)
@@ -914,9 +939,9 @@ namespace Sandy_Detailed_RPG_Inventory
             bool showArmor = ShouldShowOverallArmor(cachedPawn);
             if (showArmor)
             {
-                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Sharp, "ArmorSharp".Translate(), Sandy_Utility.texArmorSharp);
-                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Blunt, "ArmorBlunt".Translate(), Sandy_Utility.texArmorBlunt);
-                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Heat, "ArmorHeat".Translate(), Sandy_Utility.texArmorHeat);
+                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Sharp, "", Sandy_Utility.texArmorSharp);
+                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Blunt, "", Sandy_Utility.texArmorBlunt);
+                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Heat, "", Sandy_Utility.texArmorHeat);
             }
             MODIntegration.DrawStats1(this, ref top, left, showArmor);
         }

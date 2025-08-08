@@ -228,6 +228,8 @@ namespace Sandy_Detailed_RPG_Inventory
         public static readonly Texture2D texShowHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Show_Headgear", true);
         public static readonly Texture2D texHideHeadgear = ContentFinder<Texture2D>.Get("UI/Icons/RPG_Hide_Headgear", true);
         public static readonly Texture2D texLock = ContentFinder<Texture2D>.Get("UI/Icons/lock", true);
+        //public static readonly Texture2D texGasLeak = ContentFinder<Texture2D>.Get("UI/Icons/Gas_Leak", true);
+        public static readonly Texture2D texVacuumResistance = ContentFinder<Texture2D>.Get("UI/Icons/Vacuum_Resistance", true);
         public static Texture2D texFrame = null;
 
         public static bool CustomCheckboxLabeled(Listing listing, string label, ref bool checkOn, string tooltip = null)

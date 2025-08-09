@@ -661,20 +661,42 @@ namespace Sandy_Detailed_RPG_Inventory
             }
             overall = Mathf.Clamp(overall * 2f, 0f, 2f);
             Rect rect = new Rect(left, top, width, TabU.statIconSize);
-            string curLabel;
-            string labelTip;
-            if (label == "")
-            {
-                curLabel = stat.LabelCap;
-                labelTip = "\n\n" + stat.description;
-            }
-            else
-            {
-                curLabel = label;
-                labelTip = "";
-            }
+            Sandy_Utility.LabelWithIcon(rect, image, TabU.statIconSize, TabU.statIconSize, label, overall.ToStringPercent(), tip);
+            top += TabU.stdThingRowHeight;
+        }
 
-            Sandy_Utility.LabelWithIcon(rect, image, TabU.statIconSize, TabU.statIconSize, curLabel + labelTip, overall.ToStringPercent(), curLabel + "\n\n" + tip);
+        public void TryDrawOverallArmor2(ref float top, float left, float width, StatDef stat, Texture image)
+        {
+            float overall = 0f;
+            float natural = cachedPawn.GetStatValue(stat, true);
+            List<BodyPartRecord> allParts = cachedPawn.RaceProps.body.AllParts;
+            List<Apparel> list = cachedPawn.apparel?.WornApparel;
+            string tip = "";
+            for (int i = 0; i < allParts.Count; i++)
+            {
+                float partOverall = 1f - Mathf.Clamp01(natural / 2f);
+                float partTotal = natural;
+                if (list != null)
+                {
+                    for (int j = 0; j < list.Count; j++)
+                    {
+                        if (list[j].def.apparel.CoversBodyPart(allParts[i]))
+                        {
+                            float part = list[j].GetStatValue(stat, true);
+                            partTotal += part;
+                            partOverall *= 1f - Mathf.Clamp01(part / 2f);
+                        }
+                    }
+                }
+                overall += allParts[i].coverageAbs * (1f - partOverall);
+                if (allParts[i].depth == BodyPartDepth.Outside
+                    && (allParts[i].coverage >= 0.1 || allParts[i].def == BodyPartDefOf.Eye))
+                    tip = string.Concat(new string[] { tip, allParts[i].LabelCap, " ", partTotal.ToStringPercent(), "\n" });
+            }
+            overall = Mathf.Clamp(overall * 2f, 0f, 2f);
+            Rect rect = new Rect(left, top, width, TabU.statIconSize);
+
+            Sandy_Utility.LabelWithIcon(rect, image, TabU.statIconSize, TabU.statIconSize, stat.LabelCap + "\n\n" + stat.description, overall.ToStringPercent(), stat.LabelCap + "\n\n" + tip);
             top += TabU.stdThingRowHeight;
         }
 
@@ -715,9 +737,9 @@ namespace Sandy_Detailed_RPG_Inventory
             curleft = left;
             curwidth = width;
 
-            if (StatDefOf.VacuumResistance != null && StatDefOf.VacuumResistance.Worker.ShouldShowFor(StatRequest.For(cachedPawn)))
+            if (StatDefOf.VacuumResistance != null && StatDefOf.VacuumResistance.Worker.ShouldShowFor(StatRequest.For(cachedPawn))
+                && (statValue = cachedPawn.GetStatValue(StatDefOf.VacuumResistance, true)) > 0f)
             {
-                statValue = cachedPawn.GetStatValue(StatDefOf.VacuumResistance, true);
                 rect = new Rect(left, top, curwidth, TabU.statIconSize);
                 Sandy_Utility.LabelWithIcon(rect, Sandy_Utility.texVacuumResistance, TabU.statIconSize, TabU.statIconSize, StatDefOf.VacuumResistance.LabelCap + "\n\n" + StatDefOf.VacuumResistance.description, statValue.ToStringPercent("F0"));
                 top += TabU.stdThingRowHeight;
@@ -939,9 +961,9 @@ namespace Sandy_Detailed_RPG_Inventory
             bool showArmor = ShouldShowOverallArmor(cachedPawn);
             if (showArmor)
             {
-                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Sharp, "", Sandy_Utility.texArmorSharp);
-                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Blunt, "", Sandy_Utility.texArmorBlunt);
-                TryDrawOverallArmor1(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Heat, "", Sandy_Utility.texArmorHeat);
+                TryDrawOverallArmor2(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Sharp, Sandy_Utility.texArmorSharp);
+                TryDrawOverallArmor2(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Blunt, Sandy_Utility.texArmorBlunt);
+                TryDrawOverallArmor2(ref top, left, TabU.statPanelWidth, StatDefOf.ArmorRating_Heat, Sandy_Utility.texArmorHeat);
             }
             MODIntegration.DrawStats1(this, ref top, left, showArmor);
         }

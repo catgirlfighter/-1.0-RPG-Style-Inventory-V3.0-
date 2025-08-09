@@ -174,30 +174,31 @@ namespace Sandy_Detailed_RPG_Inventory
             if(!reset)
                 if (Sandy_RPG_Settings.rpgTabWidth == Slots.minRecommendedWidth) //ability to switch between recommended sizes
                 {
-                    tabWidth = maxWidth.ToString();
+                    Sandy_RPG_Settings.rpgTabWidth = maxWidth;
                     return;
                 }
                 else if (Sandy_RPG_Settings.rpgTabWidth == Slots.maxRecommendedWidth)
                 {
-                    tabWidth = minWidth.ToString();
+                    Sandy_RPG_Settings.rpgTabWidth = minWidth;
                     return;
                 }
 
             if (Sandy_RPG_Settings.rpgTabWidth < minWidth) // setting minimum size (pawn model on the bottom)
                 {
-                    tabWidth = minWidth.ToString();
+                Sandy_RPG_Settings.rpgTabWidth = minWidth;
                 }
                 else if (Sandy_RPG_Settings.rpgTabWidth > minWidth) //stats on the side
                 {
                     if (Sandy_RPG_Settings.rpgTabWidth < maxWidth)
                     {
-                        tabWidth = minWidth.ToString();
+                        Sandy_RPG_Settings.rpgTabWidth = minWidth;
                     }
                     else
                     {
-                        tabWidth = maxWidth.ToString();
+                        Sandy_RPG_Settings.rpgTabWidth = maxWidth;
                     }
                 }
+            tabWidth = Sandy_RPG_Settings.rpgTabWidth.ToString();
         }
     }
 

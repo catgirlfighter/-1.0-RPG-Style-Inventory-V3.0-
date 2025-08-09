@@ -1,3 +1,6 @@
+4.1.revamp.7.3
+- fixed autofit button not autofitting;
+
 4.1.revamp.7.2
 - separated an updated method from "old" armor1 method that VEF patched. Whatever VEF did, no longer will cause an error, but it won't have any effect on the mod either;
 - made so vacuum resistance hides when it's 0 or less;

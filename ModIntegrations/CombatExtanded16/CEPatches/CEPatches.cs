@@ -323,7 +323,7 @@ namespace CEPatches
                 float statValue = pawn.GetStatValue(stat, true);
                 float num = statValue;
                 Pawn_ApparelTracker apparel = pawn.apparel;
-                List<Apparel> list = pawn?.apparel.WornApparel;
+                List<Apparel> list = pawn?.apparel?.WornApparel;
                 num += AgregateApparelStat(list, stat);
                 //
                 if (num > 0.0001f)
@@ -655,7 +655,7 @@ namespace CEPatches
                 float statValue = pawn.GetStatValue(stat, true);
                 float num = statValue;
                 Pawn_ApparelTracker apparel = pawn.apparel;
-                List<Apparel> list = pawn?.apparel.WornApparel;
+                List<Apparel> list = pawn?.apparel?.WornApparel;
                 num += AgregateApparelStat(list, stat);
                 //
                 if (num > 0.0001f)
